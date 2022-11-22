@@ -2,8 +2,8 @@ import random
 import datetime
 
 def main():
-    quiz_num = random.randint(0, 2)
-    start_time = datetime.datetime.now() #
+    quiz_num = random.randint(0, 2) #出題する問題をランダムに決める
+    start_time = datetime.datetime.now() #問題出題時の時刻を記録
     shutudai(quiz_num)
     kaitou(quiz_num, start_time)
 
@@ -13,7 +13,7 @@ def shutudai(quiz_num):
 def kaitou(quiz_num, start_time):
     your_answer = input("答えは？:")
     num = len(quiz_data[quiz_num][1])
-    finish_time = datetime.datetime.now()
+    finish_time = datetime.datetime.now() #問題回答時の時刻を記録
     
     for i in range(num):
         if your_answer == quiz_data[quiz_num][1][i]:
