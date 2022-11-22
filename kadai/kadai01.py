@@ -19,12 +19,14 @@ def main():
     while(count != Max_Count):
         #対象とするアルファベットの選択
         target_alphabet = select_target_alphabet()
+        target_alphabet.sort()
         print(f"対象文字：{target_alphabet}")
         #欠陥文字の決定
         missing_alphabet = select_missing_alphabet(target_alphabet)
         
         question = missing_alphabet[0] #表示文字
         answer = missing_alphabet[1] #欠陥文字
+        random.shuffle(question)
         
         print(f"回答{answer} （デバッグ時のみ表示）") #Debug用 
         
