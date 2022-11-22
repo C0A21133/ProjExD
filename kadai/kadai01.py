@@ -1,5 +1,5 @@
 #表示されるアルファベット文字䛾中で抜けている文字を探すことを
-#目的としたゲームで，表示されてから正解するまで䛾時間を競う
+#目的としたゲームで，表示されてから正解するまでの時間を競う
 
 import random
 import datetime
@@ -26,7 +26,7 @@ def main():
         question = missing_alphabet[0] #表示文字
         answer = missing_alphabet[1] #欠陥文字
         
-        print(f"回答{answer}") #Debug用 
+        print(f"回答{answer} （デバッグ時のみ表示）") #Debug用 
         
         print(f"表示文字{question}")
         
