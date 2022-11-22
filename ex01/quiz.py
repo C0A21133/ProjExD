@@ -1,11 +1,14 @@
 import random
 import datetime
 
-def shutudai():
-    start_tame = datetime.datetime.now()
+def main():
     quiz_num = random.randint(0, 2)
+    start_time = datetime.datetime.now() #
+    shutudai(quiz_num)
+    kaitou(quiz_num, start_time)
+
+def shutudai(quiz_num):
     print(quiz_data[quiz_num][0])
-    kaitou(quiz_num, start_tame)
     
 def kaitou(quiz_num, start_time):
     your_answer = input("答えは？:")
@@ -30,5 +33,6 @@ if __name__ == "__main__":
         ("タラオはカツオから見てどんな関係？", ("甥", "甥っ子", "おいっこ"))
         #( 問題文 , （回答）)
         ]
-    shutudai()
+    
+    main()
     
