@@ -25,7 +25,9 @@ def main():
         
         question = missing_alphabet[0] #表示文字
         answer = missing_alphabet[1] #欠陥文字
-        print(f"回答{answer}")
+        
+        print(f"回答{answer}") #Debug用 
+        
         print(f"表示文字{question}")
         
         n = input("欠損文字はいくつあるでしょうか？")
@@ -34,6 +36,7 @@ def main():
         #欠陥文字の数を質問
         if n != str(Missing_Length):
             print(f"不正解(試行回数{count+1})")
+            print("\n")
             count += 1
             continue
         
@@ -53,6 +56,7 @@ def main():
             print("正解")
             break
         print(f"不正解(試行回数{count+1})")
+        print("\n")
     #回答時間を計算
     end_time = datetime.datetime.now()
     print(f"{(end_time - start_time).seconds}秒かかりました")
@@ -76,7 +80,6 @@ def select_missing_alphabet(target_list):
     count = 0
     while(Missing_Length != count):
         num = random.randint(0, Target_Length-1-count)
-        print(num)
         ans = target_list[num]
         if ans in ans_list:
             continue
