@@ -14,21 +14,32 @@ def main():
     count = 0 #試行回数
     start_time = datetime.datetime.now() #プログラム開始時刻
     value = True #正解か不正解かの判断に使う
+    
+    
     while(count != Max_Count):
+        #対象とするアルファベットの選択
         target_alphabet = select_target_alphabet()
         print(f"対象文字：{target_alphabet}")
+        #欠陥文字の決定
         missing_alphabet = select_missing_alphabet(target_alphabet)
-        question = missing_alphabet[0]
-        answer = missing_alphabet[1]
+        
+        question = missing_alphabet[0] #表示文字
+        answer = missing_alphabet[1] #欠陥文字
         print(f"回答{answer}")
         print(f"表示文字{question}")
         
         n = input("欠損文字はいくつあるでしょうか？")
         
+        #ここから 欠陥文字と入力した値が一致しているかどうかの処理を行う
+        #欠陥文字の数を質問
         if n != str(Missing_Length):
             print(f"不正解(試行回数{count+1})")
             count += 1
             continue
+        
+        #欠陥文字の数が正しい場合に実行される
+        #欠陥文字ではない値の入力すると、変数value がFalse になる
+        #変数value がFalseだと 不正解と判断される
         for i in range(0, Missing_Length):
             word =  input("具体的に欠損文字を入力してください")
             if word  in answer:
@@ -42,6 +53,7 @@ def main():
             print("正解")
             break
         print(f"不正解(試行回数{count+1})")
+    #回答時間を計算
     end_time = datetime.datetime.now()
     print(f"{(end_time - start_time).seconds}秒かかりました")
         
