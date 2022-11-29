@@ -27,6 +27,11 @@ class CalcGui(object):
                 button.grid(row = y, column=x)
                 button.bind("<1>", self.button_click)
             
+        #テキストボックスの配置
+        text_box = tk.Entry(justify="right", width=10, font=("", 40))
+        text_box.grid(row = 0, column = 0, columnspan=3)
+        
+    #ボタンを押した時の関数
     def button_click(self, event):
         btn = event.widget
         txt = btn["text"]
