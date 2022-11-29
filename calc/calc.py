@@ -1,8 +1,6 @@
 #電卓を表示するプログラム
 import tkinter as tk
 import tkinter.messagebox as tkm
-import math
-import re
 import random
 
 #電卓に表示するボタン
@@ -14,6 +12,7 @@ BUTTON_LIST = [
         ["1", "2", "3", "+"],
         [" ", "0", ".", "="]
     ]
+
 
 #ウインドウのサイズ
 WINDOWS_SIZE = (300, 500) #(X,Y)
