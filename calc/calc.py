@@ -25,20 +25,26 @@ class CalcGui(object):
             for x, num in enumerate(row):
                 button = tk.Button(app, text=num, width=4, height=2, font=("", 30))
                 button.grid(row = y, column=x)
-                button.bind("<1>", self.button_click)
+                button.bind("<1>", self.Button_click)
             
         #テキストボックスの配置
-        text_box = tk.Entry(justify="right", width=10, font=("", 40))
-        text_box.grid(row = 0, column = 0, columnspan=3)
+        self.text_box = tk.Entry(justify="right", width=10, font=("", 40))
+        self.text_box.grid(row = 0, column = 0, columnspan=3)
         
     #ボタンを押した時の関数
-    def button_click(self, event):
+    def Button_click(self, event):
         btn = event.widget
         txt = btn["text"]
         
         # ボタン ＝ 以外のボタンを押したときの処理
+        #テキストボックスに押したボタンのテキストをいれる
         if txt != "=":
             tkm.showinfo(txt, f"{txt}のボタンが表示されました。")
+            self.text_box.insert(tk.END, txt) 
+        
+        #ボタン = を押したときの処理
+        elif txt == "=":
+            pass
                 
                 
                 
