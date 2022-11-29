@@ -16,7 +16,7 @@ BUTTON_LIST = [
     ]
 
 #ウインドウのサイズ
-WINDOWS_SIZE = (300, 600) #(X,Y)
+WINDOWS_SIZE = (300, 500) #(X,Y)
 
 #ボタンサイズ
 BUTTON_WIDTH = 3
