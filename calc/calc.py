@@ -24,10 +24,10 @@ class CalcGui(object):
             for x, num in enumerate(row):
                 button = tk.Button(app, text=num, width=4, height=2, font=("", 30))
                 button.grid(row = y, column=x)
-    
-
-    
-
+                
+                
+                
+                
 def main():
     app = tk.Tk()
     CalcGui(app)
