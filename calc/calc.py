@@ -8,7 +8,7 @@ BUTTON_LIST = [
         ["9", "8", "7"],
         ["6", "5", "4"],
         ["3", "2", "1"],
-        ["0"]
+        ["0", "+", "="]
     ]
 
 #ウインドウのサイズ
@@ -35,7 +35,10 @@ class CalcGui(object):
     def button_click(self, event):
         btn = event.widget
         txt = btn["text"]
-        tkm.showinfo(txt, f"{txt}のボタンが表示されました。")
+        
+        # ボタン ＝ 以外のボタンを押したときの処理
+        if txt != "=":
+            tkm.showinfo(txt, f"{txt}のボタンが表示されました。")
                 
                 
                 
