@@ -2,14 +2,17 @@
 import tkinter as tk
 import tkinter.messagebox as tkm
 import math
+import re
+import random
 
 #電卓に表示するボタン
 BUTTON_LIST = [
-        ["%", "CE", "C", "del"],
-        ["7", "8", "9", "*"],
+        ["1~99", "CE", "X^y", "del"],
+        ["(", ")", "mod", "÷"],
+        ["7", "8", "9", "×"],
         ["4", "5", "6", "-"],
         ["1", "2", "3", "+"],
-        [" ", "0", "+", "="]
+        [" ", "0", ".", "="]
     ]
 
 #ウインドウのサイズ
@@ -17,7 +20,7 @@ WINDOWS_SIZE = (300, 600) #(X,Y)
 
 #ボタンサイズ
 BUTTON_WIDTH = 3
-BUTTON_HEIGHT = 2
+BUTTON_HEIGHT = 1
 
 def main():
     root = tk.Tk()
@@ -51,16 +54,11 @@ class CalcGui(tk.Frame):
     def Button_click(self, event):
         btn = event.widget
         txt = btn["text"]
-        
-        # ボタン ＝ 以外のボタンを押したときの処理
-        if txt != "=":
-            #tkm.showinfo(txt, f"{txt}のボタンが表示されました。")
-            #テキストボックスに押したボタンのテキストをいれる
-            self.text_box.insert(tk.END, txt) 
+        formula = self.text_box.get() #テキストボックス内の数式を取得
         
         #ボタン = を押したときの処理
-        elif txt == "=":
-            formula = self.text_box.get() #テキストボックス内の数式を取得
+        if txt == "=":
+
             try:
                 answer = eval(formula) #数式を計算
             
@@ -76,7 +74,39 @@ class CalcGui(tk.Frame):
                 #テキストを削除し答えを表示
                 self.text_box.delete(0, tk.END)
                 self.text_box.insert(tk.END, answer)
+            return 0
+   
+                    
+        # ＝ 以外のボタンを押したときの処理
+        if txt == "del":
+            formula = formula[:-1]
+            self.text_box.delete(0, tk.END)
+            self.text_box.insert(tk.END, formula)
+        
+        #CE 入力時
+        elif txt == "CE":
+            self.text_box.delete(0, tk.END)
+        
+        # × が入力
+        elif txt == "×":
+            self.text_box.insert(tk.END, "*")
+        
             
+        # ÷ が入力
+        elif txt == "÷":
+            self.text_box.insert(tk.END, "/")
+        
+        # X^y が入力
+        elif txt == "X^y":
+            self.text_box.insert(tk.END, "**")
+            
+        # random が入力
+        elif txt == "1~99":
+            self.text_box.insert(tk.END, random.randint(1, 100))
+            
+        #数値あるいは（）が押された場合の処理
+        else:
+            self.text_box.insert(tk.END, txt)
 
 if __name__ == "__main__":
     main()
