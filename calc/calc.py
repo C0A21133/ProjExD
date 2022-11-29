@@ -1,5 +1,6 @@
 #電卓を表示するプログラム
 import tkinter as tk
+import tkinter.messagebox as tkm
 import math
 
 #電卓に表示するボタン
@@ -24,7 +25,12 @@ class CalcGui(object):
             for x, num in enumerate(row):
                 button = tk.Button(app, text=num, width=4, height=2, font=("", 30))
                 button.grid(row = y, column=x)
-                
+                button.bind("<1>", self.button_click)
+            
+    def button_click(self, event):
+        btn = event.widget
+        txt = btn["text"]
+        tkm.showinfo(txt, f"{txt}のボタンが表示されました。")
                 
                 
                 
