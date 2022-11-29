@@ -35,18 +35,18 @@ class CalcGui(tk.Frame):
         self.master.title('calculator') #ウインドウのタイトル
         self.master.geometry(f"{WINDOWS_SIZE[0]}x{WINDOWS_SIZE[1]}") #ウインドウのサイズ
         
-        frame = tk.Frame(self.master, width=WINDOWS_SIZE[0]-10, height=WINDOWS_SIZE[1]-10, padx=5, pady=5)
-        frame.grid()
+        self.frame = tk.Frame(self.master, width=WINDOWS_SIZE[0]-10, height=WINDOWS_SIZE[1]-10, padx=5, pady=5)
+        self.frame.grid()
         
         #ボタンをBUTTON_LISTから取得し配置
         for y, row in enumerate(BUTTON_LIST, 1):
             for x, num in enumerate(row):
-                button = tk.Button(frame, text=num, width=BUTTON_WIDTH, height=BUTTON_HEIGHT, font=("", 30))
+                button = tk.Button(self.frame, text=num, width=BUTTON_WIDTH, height=BUTTON_HEIGHT, font=("", 30))
                 button.grid(row = y, column=x)
                 button.bind("<1>", self.Button_click)
             
         #テキストボックスの配置
-        self.text_box = tk.Entry(frame, justify="right", width=20,font=("", 20))
+        self.text_box = tk.Entry(self.frame, justify="right", width=20,font=("", 20))
         self.text_box.grid(row = 0, column = 0, columnspan=4)
         
         
@@ -58,7 +58,6 @@ class CalcGui(tk.Frame):
         
         #ボタン = を押したときの処理
         if txt == "=":
-
             try:
                 answer = eval(formula) #数式を計算
             
@@ -78,6 +77,7 @@ class CalcGui(tk.Frame):
    
                     
         # ＝ 以外のボタンを押したときの処理
+        # ここから
         if txt == "del":
             formula = formula[:-1]
             self.text_box.delete(0, tk.END)
@@ -86,12 +86,15 @@ class CalcGui(tk.Frame):
         #CE 入力時
         elif txt == "CE":
             self.text_box.delete(0, tk.END)
+            
+        #mod 入力時
+        elif txt == "mod":
+            self.text_box.insert(tk.END, "%")
         
         # × が入力
         elif txt == "×":
             self.text_box.insert(tk.END, "*")
         
-            
         # ÷ が入力
         elif txt == "÷":
             self.text_box.insert(tk.END, "/")
@@ -104,9 +107,13 @@ class CalcGui(tk.Frame):
         elif txt == "1~99":
             self.text_box.insert(tk.END, random.randint(1, 100))
             
+        elif txt == " ":
+            btn["bg"] = "blue"
         #数値あるいは（）が押された場合の処理
         else:
             self.text_box.insert(tk.END, txt)
+        
+        #ここまで
 
 if __name__ == "__main__":
     main()
