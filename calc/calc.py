@@ -5,38 +5,46 @@ import math
 
 #電卓に表示するボタン
 BUTTON_LIST = [
-        ["9", "8", "7"],
-        ["6", "5", "4"],
-        ["3", "2", "1"],
-        ["0", "+", "="]
+        ["%", "CE", "C", "del"],
+        ["7", "8", "9", "*"],
+        ["4", "5", "6", "-"],
+        ["1", "2", "3", "+"],
+        [" ", "0", "+", "="]
     ]
 
 #ウインドウのサイズ
-WINDOWS_SIZE = (300, 500) #(X,Y)
+WINDOWS_SIZE = (300, 600) #(X,Y)
 
+#ボタンサイズ
+BUTTON_WIDTH = 3
+BUTTON_HEIGHT = 2
 
 def main():
-    app = tk.Tk()
-    CalcGui(app)
+    root = tk.Tk()
+    app = CalcGui(master=root)
     app.mainloop()
 
 
 #電卓のGuiの設定
-class CalcGui(object):
-    def __init__(self, app=None):
-        app.title('calculator') #ウインドウのタイトル
-        app.geometry(f"{WINDOWS_SIZE[0]}x{WINDOWS_SIZE[1]}") #ウインドウのサイズ
+class CalcGui(tk.Frame):
+    def __init__(self, master=None):
+        super().__init__(master)
+        self.master.title('calculator') #ウインドウのタイトル
+        self.master.geometry(f"{WINDOWS_SIZE[0]}x{WINDOWS_SIZE[1]}") #ウインドウのサイズ
+        
+        frame = tk.Frame(self.master, width=WINDOWS_SIZE[0]-10, height=WINDOWS_SIZE[1]-10, padx=5, pady=5)
+        frame.grid()
         
         #ボタンをBUTTON_LISTから取得し配置
         for y, row in enumerate(BUTTON_LIST, 1):
             for x, num in enumerate(row):
-                button = tk.Button(app, text=num, width=4, height=2, font=("", 30))
+                button = tk.Button(frame, text=num, width=BUTTON_WIDTH, height=BUTTON_HEIGHT, font=("", 30))
                 button.grid(row = y, column=x)
                 button.bind("<1>", self.Button_click)
             
         #テキストボックスの配置
-        self.text_box = tk.Entry(justify="right", width=10, font=("", 40))
-        self.text_box.grid(row = 0, column = 0, columnspan=3)
+        self.text_box = tk.Entry(frame, justify="right", width=20,font=("", 20))
+        self.text_box.grid(row = 0, column = 0, columnspan=4)
         
         
     #ボタンを押した時の関数
