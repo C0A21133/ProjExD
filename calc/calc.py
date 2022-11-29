@@ -38,6 +38,7 @@ class CalcGui(object):
         self.text_box = tk.Entry(justify="right", width=10, font=("", 40))
         self.text_box.grid(row = 0, column = 0, columnspan=3)
         
+        
     #ボタンを押した時の関数
     def Button_click(self, event):
         btn = event.widget
@@ -46,7 +47,6 @@ class CalcGui(object):
         # ボタン ＝ 以外のボタンを押したときの処理
         if txt != "=":
             #tkm.showinfo(txt, f"{txt}のボタンが表示されました。")
-            
             #テキストボックスに押したボタンのテキストをいれる
             self.text_box.insert(tk.END, txt) 
         
