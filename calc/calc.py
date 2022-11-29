@@ -55,11 +55,19 @@ class CalcGui(object):
             formula = self.text_box.get() #テキストボックス内の数式を取得
             try:
                 answer = eval(formula) #数式を計算
+            
+            #eval関数で計算できない数式が入力されたときの処理    
+            except SyntaxError:
+                tkm.showerror("error", "不正な数式")
+            
+            #想定してないエラーの時の処理
+            except Exception as e:
+                tkm.showerror("error", e)
+            
+            else:
                 #テキストを削除し答えを表示
                 self.text_box.delete(0, tk.END)
                 self.text_box.insert(tk.END, answer)
-            except:
-                tkm.showerror("error", "無効な演算") 
             
 
 if __name__ == "__main__":
