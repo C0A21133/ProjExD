@@ -12,7 +12,14 @@ BUTTON_LIST = [
     ]
 
 #ウインドウのサイズ
-WINDOWS_SIZE = (300, 500)
+WINDOWS_SIZE = (300, 500) #(X,Y)
+
+
+def main():
+    app = tk.Tk()
+    CalcGui(app)
+    app.mainloop()
+
 
 #電卓のGuiの設定
 class CalcGui(object):
@@ -37,30 +44,23 @@ class CalcGui(object):
         txt = btn["text"]
         
         # ボタン ＝ 以外のボタンを押したときの処理
-        #テキストボックスに押したボタンのテキストをいれる
         if txt != "=":
-            
             #tkm.showinfo(txt, f"{txt}のボタンが表示されました。")
             
+            #テキストボックスに押したボタンのテキストをいれる
             self.text_box.insert(tk.END, txt) 
         
         #ボタン = を押したときの処理
         elif txt == "=":
             formula = self.text_box.get() #テキストボックス内の数式を取得
-            #テキストを削除し答えを表示
-            self.text_box.delete(0, tk.END)
             try:
                 answer = eval(formula) #数式を計算
+                #テキストを削除し答えを表示
+                self.text_box.delete(0, tk.END)
                 self.text_box.insert(tk.END, answer)
             except:
-                tkm.showerror("error", "無効な演算")
-                
-                
-def main():
-    app = tk.Tk()
-    CalcGui(app)
-    app.mainloop()
-    
-    
+                tkm.showerror("error", "無効な演算") 
+            
+
 if __name__ == "__main__":
     main()
