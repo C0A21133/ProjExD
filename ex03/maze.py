@@ -26,7 +26,7 @@ def key_down(event):
     key = event.keysym
     
 def key_up(event):
-    global key, image
+    global key, image, my, mx, koukaton, tmr
     if key == "1":
         file_num = random.randint(0, 9)
         koukaton.image = ImageTk.PhotoImage(file=f"fig/{file_num}.png")
@@ -42,6 +42,18 @@ def key_up(event):
             koukaton.stealth = False
         elif koukaton.stealth == False:
             koukaton.stealth = True
+    
+    if key == "3":
+        #こうかとんの削除
+        canvas.delete(image)
+        #こうかとん の表示
+        koukaton.image = ImageTk.PhotoImage(file="fig/0.png")
+        koukaton.cx = 0
+        koukaton.cy = 0
+        mx = 1
+        my = 1
+        image = canvas.create_image(koukaton.cx, koukaton.cy, image=koukaton.image)
+        tmr = 0
     
     key = ""
     
