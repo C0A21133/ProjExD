@@ -1,7 +1,8 @@
 #
 import tkinter as tk
-from PIL import ImageTk
+import tkinter.messagebox as tkm
 import maze_maker
+from PIL import ImageTk
 
 #ウインドウのサイズ
 WINDOWS_SIZE = (1500, 900) #(X,Y)
@@ -29,11 +30,18 @@ class Koukaton():
         self.cx = cx
         self.cy = cy
     
+def key_down(event):
+    key = event.keysym
+    tkm.showinfo(f"{key}", f"{key}")
     
-    
+def key_up(event):
+    pass
     
     
 if __name__ == "__main__":
+    key = ""
     root = tk.Tk()
+    root.bind("<KeyPress>", key_down)
+    root.bind("<KeyRelease>", key_up)
     app = Application(master=root)
     app.mainloop()
