@@ -2,6 +2,7 @@
 import tkinter as tk
 import tkinter.messagebox as tkm
 import maze_maker
+import random
 from PIL import ImageTk
 
 #ウインドウのサイズ
@@ -12,10 +13,11 @@ CELL_SIZE = 100
     
 #こうかトン    
 class Koukaton():
-    def __init__(self, cx, cy, image):
+    def __init__(self, cx, cy, image, stealth=False):
         self.cx = cx + 150
         self.cy = cy + 150
         self.image = ImageTk.PhotoImage(file=image) 
+        self.stealth = stealth
 
     
     
@@ -24,7 +26,23 @@ def key_down(event):
     key = event.keysym
     
 def key_up(event):
-    global key
+    global key, image
+    if key == "1":
+        file_num = random.randint(0, 9)
+        koukaton.image = ImageTk.PhotoImage(file=f"fig/{file_num}.png")
+        #こうかとんの削除
+        canvas.delete(image)
+        #こうかとん の表示
+        image = canvas.create_image(koukaton.cx, koukaton.cy, image=koukaton.image)
+        
+        print("change image")
+        
+    if key == "2":
+        if koukaton.stealth == True:
+            koukaton.stealth = False
+        elif koukaton.stealth == False:
+            koukaton.stealth = True
+    
     key = ""
     
 def main_peoc():
@@ -33,23 +51,27 @@ def main_peoc():
     
     if key == "Up":
         y = -1
-        #koukaton.cy += -CELL_SIZE
     elif key == "Down":
         y = 1
-        #koukaton.cy += CELL_SIZE
     elif key == "Right":
         x = 1
-        #koukaton.cx += CELL_SIZE
     elif key == "Left":
-        x = -1
-        #koukaton.cx += -CELL_SIZE    
+        x = -1  
         
     #移動先の状態を調べる
-    if maze_list[mx + x][my + y] == 0:
+    #ステルスモードなら壁抜けできる
+    if koukaton.stealth == False:
+        if maze_list[mx + x][my + y] == 0:
+            mx += x
+            my += y
+            koukaton.cx = 50 + 100 * mx
+            koukaton.cy = 50 + 100 * my
+    elif koukaton.stealth == True:
         mx += x
         my += y
         koukaton.cx = 50 + 100 * mx
         koukaton.cy = 50 + 100 * my
+        
         
     #画像の座標の取得
     points = canvas.coords(image)
@@ -63,8 +85,18 @@ def main_peoc():
     
     root.after(60, main_peoc)
     
+    
+def count_up():
+    global tmr, jid
+    label["text"] = tmr
+    tmr += 1
+    jid = root.after(1000, count_up)
+    
+    
 if __name__ == "__main__":
     key = ""
+    tmr = 0
+    
     mx, my = 1,1
     
     root = tk.Tk()
@@ -83,10 +115,16 @@ if __name__ == "__main__":
     maze_list = maze_maker.make_maze(int(WINDOWS_SIZE[0] / 100), int(WINDOWS_SIZE[1] / 100))
     maze_maker.show_maze(canvas=canvas, maze_lst=maze_list)
     
+    #タイマーの作成
+    label = tk.Label(root, text="-",font=("", 80))
+    label.place(relx=50, rely=50)
+    
     #こうかとん の表示
     image = canvas.create_image(koukaton.cx, koukaton.cy, image=koukaton.image)
+    print(koukaton.image)
     
     #処理
     main_peoc()
+    count_up()
         
     root.mainloop()
