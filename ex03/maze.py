@@ -87,9 +87,11 @@ def main_peoc():
     
     
 def count_up():
-    global tmr, jid
-    label["text"] = tmr
+    global tmr, jid, timer
+    canvas.delete(timer)
     tmr += 1
+    #タイマーの作成
+    timer = canvas.create_text(50, 60, text=f"{tmr}",font=("", 80))
     jid = root.after(1000, count_up)
     
     
@@ -116,8 +118,7 @@ if __name__ == "__main__":
     maze_maker.show_maze(canvas=canvas, maze_lst=maze_list)
     
     #タイマーの作成
-    label = tk.Label(root, text="-",font=("", 80))
-    label.place(relx=50, rely=50)
+    timer = canvas.create_text(50, 60, text="-",font=("", 80))
     
     #こうかとん の表示
     image = canvas.create_image(koukaton.cx, koukaton.cy, image=koukaton.image)
