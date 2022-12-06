@@ -38,9 +38,9 @@ def key_up(event):
         print("change image")
         
     if key == "2":
-        if koukaton.stealth == True:
+        if koukaton.stealth:
             koukaton.stealth = False
-        elif koukaton.stealth == False:
+        else:
             koukaton.stealth = True
     
     if key == "3":
@@ -72,18 +72,18 @@ def main_peoc():
         
     #移動先の状態を調べる
     #ステルスモードなら壁抜けできる
-    if koukaton.stealth == False:
-        if maze_list[mx + x][my + y] == 0:
-            mx += x
-            my += y
-            koukaton.cx = 50 + CELL_SIZE * mx
-            koukaton.cy = 50 + CELL_SIZE * my
-    elif koukaton.stealth == True:
+    if koukaton.stealth:
         mx += x
         my += y
         koukaton.cx = 50 + CELL_SIZE * mx
         koukaton.cy = 50 + CELL_SIZE * my
-        
+    #ステルスモードじゃない場合
+    else:
+        if maze_list[mx + x][my + y] == 0:
+            mx += x
+            my += y
+            koukaton.cx = 50 + CELL_SIZE * mx
+            koukaton.cy = 50 + CELL_SIZE * my    
         
     #画像の座標の取得
     points = canvas.coords(image)
