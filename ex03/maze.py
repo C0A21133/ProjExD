@@ -11,7 +11,7 @@ WINDOWS_SIZE = (1500, 900) #(X,Y)
 #マスのサイズ
 CELL_SIZE = 100
     
-#こうかトン    
+#こうかとん  
 class Koukaton():
     def __init__(self, cx, cy, image, stealth=False):
         self.cx = cx + 150
