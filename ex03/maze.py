@@ -76,13 +76,13 @@ def main_peoc():
         if maze_list[mx + x][my + y] == 0:
             mx += x
             my += y
-            koukaton.cx = 50 + 100 * mx
-            koukaton.cy = 50 + 100 * my
+            koukaton.cx = 50 + CELL_SIZE * mx
+            koukaton.cy = 50 + CELL_SIZE * my
     elif koukaton.stealth == True:
         mx += x
         my += y
-        koukaton.cx = 50 + 100 * mx
-        koukaton.cy = 50 + 100 * my
+        koukaton.cx = 50 + CELL_SIZE * mx
+        koukaton.cy = 50 + CELL_SIZE * my
         
         
     #画像の座標の取得
@@ -110,7 +110,7 @@ def count_up():
 if __name__ == "__main__":
     key = ""
     tmr = 0
-    
+    #こうかとん が存在するマスの座標
     mx, my = 1,1
     
     root = tk.Tk()
