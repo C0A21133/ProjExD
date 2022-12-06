@@ -18,7 +18,6 @@ class Koukaton():
 def key_down(event):
     global key
     key = event.keysym
-    #tkm.showinfo(f"{key}", f"{key}")
     
 def key_up(event):
     global key
@@ -27,9 +26,9 @@ def key_up(event):
 def main_peoc():
     global key, koukaton
     if key == "Up":
-        koukaton.cy += 20
-    elif key == "Down":
         koukaton.cy += -20
+    elif key == "Down":
+        koukaton.cy += 20
     elif key == "Right":
         koukaton.cx += 20
     elif key == "Left":
@@ -37,7 +36,7 @@ def main_peoc():
     
     #画像の座標の取得
     points = canvas.coords(image)
-    print(points)
+    #print(points)
     
     #座標の修正
     points = [koukaton.cx, koukaton.cy]
@@ -62,8 +61,13 @@ if __name__ == "__main__":
     canvas = tk.Canvas(root, width=WINDOWS_SIZE[0], height=WINDOWS_SIZE[1], bg = "black")
     canvas.pack()
     
+    #迷路の作成
+    maze_list = maze_maker.make_maze(15, 9)
+    maze_maker.show_maze(canvas=canvas, maze_lst=maze_list)
+    
     #こうかとん の表示
     image = canvas.create_image(koukaton.cx, koukaton.cy, image=koukaton.image)
+    
     #処理
     main_peoc()
         
