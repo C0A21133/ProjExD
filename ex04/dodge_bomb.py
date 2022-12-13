@@ -2,6 +2,8 @@ import pygame as pg
 import sys
 import os
 
+
+
 def main():
     os.chdir(os.path.dirname(__file__))
     print("pass"+os.getcwd())
