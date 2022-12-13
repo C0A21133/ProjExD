@@ -1,14 +1,23 @@
 import pygame as pg
+import random
 import sys
 import os
 
-WINDOW_SIZE = (1300, 600)
+WINDOW_SIZE = (1600, 900)
 
 class Image:
     def __init__(self, im_pass, pos) -> None:
         self.im_pass = im_pass
         self.pos = pos
         
+
+class Bomb:
+    def __init__(self, rad= 10, color = "red") -> None:
+        x = random.randint(0, WINDOW_SIZE[0])
+        y = random.randint(0, WINDOW_SIZE[1])
+        self.pos = (x, y)
+        self.rad = rad
+        self.color = color
 
 def main():
     os.chdir(os.path.dirname(__file__))
@@ -30,11 +39,15 @@ def main():
     koukaton_rect = koukaton_image.get_rect()
     koukaton_rect.center = koukaton.pos[0], koukaton.pos[1]
     
+    bomb = Bomb()
     
     while (1):
         pg.display.update()
         scrn_sfc.blit(bg_image, rect_bg)
         scrn_sfc.blit(koukaton_image, koukaton_rect)
+        
+        bomb_circle = pg.draw.circle(scrn_sfc, (bomb.color), bomb.pos, bomb.rad)
+        
         
         pressed = pg.key.get_pressed()
         if pressed[pg.K_LEFT]:
@@ -55,8 +68,7 @@ def main():
                 if event.key == pg.K_ESCAPE:
                     pg.quit()
                     sys.exit()
-                
-                
+     
                 print(f"push:{pg.key.name(event.key)}")
         pg.display.update()
                     
