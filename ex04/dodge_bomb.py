@@ -12,12 +12,17 @@ class Image:
         
 
 class Bomb:
-    def __init__(self, rad= 10, color = "red") -> None:
+    def __init__(self, rad= 10, color = "red", speed=1) -> None:
         x = random.randint(0, WINDOW_SIZE[0])
         y = random.randint(0, WINDOW_SIZE[1])
-        self.pos = (x, y)
+        self.pos = [x, y]
         self.rad = rad
         self.color = color
+        self.speed = speed
+        
+    def move(self):
+        self.pos[0] += self.speed
+        self.pos[1] += self.speed
 
 def main():
     os.chdir(os.path.dirname(__file__))
@@ -28,7 +33,7 @@ def main():
     screen = pg.display.get_surface()
     
     clock = pg.time.Clock()
-    clock.tick(1000)
+    
     
     bg_image = pg.image.load("pg_bg.jpg")
     rect_bg = bg_image.get_rect()
@@ -41,13 +46,14 @@ def main():
     
     bomb = Bomb()
     
+    
     while (1):
         pg.display.update()
         scrn_sfc.blit(bg_image, rect_bg)
         scrn_sfc.blit(koukaton_image, koukaton_rect)
         
+        bomb.move()
         bomb_circle = pg.draw.circle(scrn_sfc, (bomb.color), bomb.pos, bomb.rad)
-        
         
         pressed = pg.key.get_pressed()
         if pressed[pg.K_LEFT]:
@@ -71,7 +77,7 @@ def main():
      
                 print(f"push:{pg.key.name(event.key)}")
         pg.display.update()
-                    
+        clock.tick(1000)
 
 
 if __name__ == "__main__":
