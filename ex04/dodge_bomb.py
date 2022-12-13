@@ -100,6 +100,7 @@ def main():
     pg.init()
     pg.display.set_caption("逃げろ！こうかとん")
     scrn_sfc = pg.display.set_mode(WINDOW_SIZE)
+    key_dic = {"left":pg.K_LEFT, "right":pg.K_RIGHT, "up":pg.K_UP, "down":pg.K_DOWN, "dash":pg.K_LSHIFT} #キー の設定
     
     clock = pg.time.Clock()    
     
@@ -153,18 +154,18 @@ def main():
         #こうかとん の移動の処理
         before_koukaton_rect = copy.deepcopy(koukaton_rect) #こうかとん の移動前の座標
         pressed = pg.key.get_pressed()
-        if pressed[pg.K_LEFT]:
+        if pressed[key_dic["left"]]:
             koukaton_rect.move_ip(-1 * koukaton.speed, 0)
-        if pressed[pg.K_RIGHT]:
+        if pressed[key_dic["right"]]:
             koukaton_rect.move_ip(koukaton.speed, 0)
-        if pressed[pg.K_UP]:
+        if pressed[key_dic["up"]]:
             koukaton_rect.move_ip(0, -1 * koukaton.speed)
-        if pressed[pg.K_DOWN]:
+        if pressed[key_dic["down"]]:
             koukaton_rect.move_ip(0, koukaton.speed)
             
-        if pressed[pg.K_LSHIFT]:
+        if pressed[key_dic["dash"]]:
             koukaton.speed = 2
-        elif pressed[pg.K_LSHIFT] == False:
+        elif pressed[key_dic["dash"]] == False:
             koukaton.speed = 1
         
         
