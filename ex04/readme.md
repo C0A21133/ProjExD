@@ -14,4 +14,10 @@
 - F1 でリセット
 - ヒットストップを追加
 - 被弾で画像が変わる
+- BGMの設定
 ### メモ
+- ハートの画像 (nc237709.png)
+- https://commons.nicovideo.jp/material/nc237709
+
+- BGM (こんとどぅふぇ素材No.0129-Last Horizon.wav)
+- https://conte-de-fees.com/bgm/2199.html

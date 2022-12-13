@@ -5,11 +5,21 @@ import copy
 import os
 import time
 
+"""
+ハートの画像 (nc237709.png)
+https://commons.nicovideo.jp/material/nc237709
+
+BGM (こんとどぅふぇ素材No.0129-Last Horizon.wav)
+https://conte-de-fees.com/bgm/2199.html
+
+    
+"""
+
 WINDOW_SIZE = (1600, 900) #ウインドウサイズ
 LIFE_POINT = 3 #ライIN
 INVINCIBLE_TIME = 1 #無敵時間(sec)
 BOMB_NUM = 1 #爆弾の初期の数
-HIT_STOP = 0.1 #ヒットストップの設定
+HIT_STOP = 0.2 #ヒットストップの設定
 
 
 class Image:
@@ -41,24 +51,27 @@ class Bomb:
             # i == 0 のとき x 軸の計算
             # i == 1 のとき y 軸の計算
             self.pos[i] += self.speed[i]
+            #壁にぶつかったら反転
             if 0 >= self.pos[i] or self.pos[i] + self.rad >= WINDOW_SIZE[i]:
                 self.speed[i] *= -1
             
 
 crash_time = 0
 
+#ゲームオーバー時の処理
 def gameover():
     pg.quit()
     sys.exit()
 
 def check_bomb(ko, ko_rect, bb, lf):
-    """_summary_
+    """
+    爆弾とこうかとんの衝突時の処理
 
     Args:
-        ko (Koukaton):
-        ko_rect (Rect): _description_
-        bb (Rect):
-        lf (Life):
+        ko (Koukaton): こうかとん
+        ko_rect (Rect): こうかとん
+        bb (Rect): 爆弾
+        lf (Life): ライフ
     """
     global crash_time
     time_end = time.time()
@@ -89,6 +102,13 @@ def main():
     scrn_sfc = pg.display.set_mode(WINDOW_SIZE)
     
     clock = pg.time.Clock()    
+    
+    
+    sound_file = "こんとどぅふぇ素材No.0129-Last-Horizon.wav"
+    pg.mixer.init(frequency = 44100)    # 初期設定
+    pg.mixer.music.load(sound_file)     # 音楽ファイルの読み込み
+    pg.mixer.music.play(-1)             # 音楽の再生回数(ループ再生)
+    
     
     #背景の設定
     bg_image = pg.image.load("pg_bg.jpg")
