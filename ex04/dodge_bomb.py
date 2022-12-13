@@ -34,6 +34,19 @@ class Bomb:
                 self.speed[i] *= -1
             
 
+def check_bomb(ko_rect, bb):
+    """_summary_
+
+    Args:
+        ko_rect (Rect): _description_
+        bb (Rect):
+    """
+    
+    if ko_rect.colliderect(bb):
+        pg.quit()
+        sys.exit()
+        
+
 def main():
     os.chdir(os.path.dirname(__file__))
     print("pass:"+os.getcwd())
@@ -56,9 +69,8 @@ def main():
 
     bomb = Bomb()
     
-    print(type(koukaton_rect))
     
-    while (1):
+    while True:
         scrn_sfc.blit(bg_image, rect_bg)
         scrn_sfc.blit(koukaton_image, koukaton_rect)
         
@@ -83,6 +95,9 @@ def main():
             if 0 >= koukaton_rect[i] or koukaton_rect[i] + koukaton_rect[2+i]>= WINDOW_SIZE[i]:
                 print(before_koukaton_rect)
                 koukaton_rect = before_koukaton_rect
+        
+        #爆弾の衝突
+        check_bomb(ko_rect=koukaton_rect, bb = bomb_circle)
         
         for event in pg.event.get():
             if event.type == pg.QUIT:
