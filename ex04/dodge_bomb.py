@@ -103,7 +103,7 @@ def main():
     
     clock = pg.time.Clock()    
     
-    
+    #BGMの設定
     sound_file = "こんとどぅふぇ素材No.0129-Last-Horizon.wav"
     pg.mixer.init(frequency = 44100)    # 初期設定
     pg.mixer.music.load(sound_file)     # 音楽ファイルの読み込み
@@ -144,9 +144,12 @@ def main():
         for i in range(life.life):
             scrn_sfc.blit(life_image[i], life_rect[i])
             
+        #爆弾の移動
         bomb.move()
         bomb_circle = pg.draw.circle(scrn_sfc, (bomb.color), bomb.pos, bomb.rad)
-        
+            
+            
+            
         #こうかとん の移動の処理
         before_koukaton_rect = copy.deepcopy(koukaton_rect) #こうかとん の移動前の座標
         pressed = pg.key.get_pressed()
@@ -164,6 +167,7 @@ def main():
         elif pressed[pg.K_LSHIFT] == False:
             koukaton.speed = 1
         
+        
         #こうかとん が画面外に出たとき、元の位置に戻す、
         for i in range(2):
             # i == 0 のとき x座標が範囲外
@@ -174,7 +178,7 @@ def main():
         
         #爆弾の衝突
         check_bomb(ko=koukaton ,ko_rect=koukaton_rect, bb=bomb_circle, lf=life)
-        
+            
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 pg.quit()
