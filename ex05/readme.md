@@ -24,25 +24,20 @@
 - 爆弾と敵キャラを複数に設定
 - 開始直後の被弾を無効
 ### メモ
-- 
 - ハートの画像 (nc237709.png)
 - https://commons.nicovideo.jp/material/nc237709
--
 - 爆弾の画像 (bakudan.png)
 - https://www.irasutoya.com/2014/04/blog-post_4.html
--
 - 炎の画像 (nc289332.png)
 - https://commons.nicovideo.jp/material/nc289332
--
+- 敵の画像 (nc223460.png)
+- https://commons.nicovideo.jp/material/nc223460
 - 効果音 (nc172283.wav)
 - https://commons.nicovideo.jp/material/nc172283
--
 - 効果音 (nc84862.wav)
 - https://commons.nicovideo.jp/material/nc84862
--
 - 効果音 (nc224596.wav)
 - https://commons.nicovideo.jp/material/nc224596
--
 - BGM (こんとどぅふぇ素材No.0129-Last Horizon.wav)
 - https://conte-de-fees.com/bgm/2199.html
 - 音楽：こんとどぅふぇ
