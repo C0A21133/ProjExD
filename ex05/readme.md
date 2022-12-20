@@ -1,7 +1,7 @@
 # 第4回
-## 逃げろ！こうかとん (ex04/dodge_bomb.py)
+## 逃げろ！こうかとん (ex05/fight_koukaton.py)
 ### ゲーム概要
-- ex04/dodge_bombを実行すると，1600x900のウィンドウが描写され、赤い爆弾から矢印キーでこうかとんを動かして、よけるゲーム
+- ex05/fight_koukatonを実行すると，1600x900のウィンドウが描写され、爆弾から矢印キーでこうかとんを動かして、よけるゲーム
 - 爆弾の初期位置はランダム
 ### 操作方法
 - 矢印キーでこうかとんを上下左右に移動する
@@ -17,8 +17,9 @@
 ### 追加機能(ex05)
 - クラスの追加
 - 爆弾を画像に変更
--
--
+- 爆弾に当たった時爆弾が消えるように設定
+- 敵キャラの追加
+- 効果音の追加
 
 ### メモ
 - 
@@ -27,6 +28,12 @@
 -
 - 爆弾の画像 (bakudan.png)
 - https://www.irasutoya.com/2014/04/blog-post_4.html
+-
+- 効果音 (nc172283.wav)
+- https://commons.nicovideo.jp/material/nc172283
+-
+- 効果音 (nc84862.wav)
+- https://commons.nicovideo.jp/material/nc84862
 -
 - BGM (こんとどぅふぇ素材No.0129-Last Horizon.wav)
 - https://conte-de-fees.com/bgm/2199.html

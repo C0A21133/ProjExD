@@ -6,22 +6,10 @@ import sys
 import time
 
 
-"""
-ハートの画像 (nc237709.png)
-https://commons.nicovideo.jp/material/nc237709
-
-爆弾の画像 (bakudan.png)
-https://www.irasutoya.com/2014/04/blog-post_4.html
-
-BGM (こんとどぅふぇ素材No.0129-Last Horizon.wav)
-https://conte-de-fees.com/bgm/2199.html
-    
-"""
-
 WINDOW_SIZE = (1600, 900) #ウインドウサイズ
 LIFE_POINT = 3 #ライフ
 INVINCIBLE_TIME = 1 #無敵時間(sec)
-BOMB_NUM = 2 #爆弾の初期の数
+BOMB_NUM = 1 #爆弾の初期の数
 HIT_STOP = 0.2 #ヒットストップの設定
 
 crash_time = 0
@@ -43,7 +31,7 @@ class Image(Screen):
 class Koukaton(Image):   
     key_dic = {
         "left":pg.K_LEFT, "right":pg.K_RIGHT, "up":pg.K_UP, 
-        "down":pg.K_DOWN, "dash":pg.K_LSHIFT
+        "down":pg.K_DOWN, "dash":pg.K_LSHIFT, "attack":pg.K_LCTRL
         } #キー の設定
     
     def __init__(self, im_pass, pos, speed=1) -> None:
@@ -74,6 +62,9 @@ class Koukaton(Image):
             self.speed = 2
         elif pressed[Koukaton.key_dic["dash"]] == False:
             self.speed = 1
+        
+        if pressed[Koukaton.key_dic["attack"]]:
+            pass
             
         #こうかとん が画面外に出たとき、元の位置に戻す、
         for i in range(2):
@@ -87,7 +78,29 @@ class Koukaton(Image):
         self.image = pg.image.load(ip)
         self.image = pg.transform.rotozoom(self.image, 0, 2.0)
         
+
+class Enemy(Image):
+    def __init__(self, im_pass, speed=[1, 1]) -> None:
+        super().__init__(im_pass)
+        x = random.randint(0, WINDOW_SIZE[0])
+        y = random.randint(0, WINDOW_SIZE[1])
+        self.pos = [x, y]
+        self.speed = speed
+        self.image = pg.transform.rotozoom(self.image, 0, 0.3)
+        self.rect = self.image.get_rect()
+        self.rect.center = self.pos
         
+    def blit(self):
+        self.screen.blit(self.image, self.rect)
+
+    def update(self):
+        self.rect.move_ip(self.speed)
+        for i in range(2):
+            # i == 0 のとき x 軸の計算
+            # i == 1 のとき y 軸の計算
+            #壁にぶつかったら反転
+            if 0 >= self.rect[i] or self.rect[i] + self.rect[i+2] >= WINDOW_SIZE[i]:
+                self.speed[i] *= -1
 
 class BackgroundImage(Image):
     def __init__(self, im_pass,  title) -> None:
@@ -105,6 +118,8 @@ class BackgroundImage(Image):
     def blit(self):
         self.screen.blit(self.image, self.rect)
         
+    def update(self):
+        pass
         
 class Life(Image):
     def __init__(self, im_pass, pos, life=LIFE_POINT):
@@ -152,17 +167,31 @@ class Sound:
     def __init__(self, sd_name) -> None:
         self.sd_name = sd_name
         pg.mixer.init(frequency = 44100)    # 初期設定
-        pg.mixer.music.load(self.sd_name)     # 音楽ファイルの読み込み
-        pg.mixer.music.play(-1)  # 音楽の再生回数(ループ再生)
+        self.music = pg.mixer.Sound(self.sd_name)     # 音楽ファイルの読み込み
         
+        
+class BGM(Sound):
+    def __init__(self, sd_name) -> None:
+        super().__init__(sd_name)
+        self.music.set_volume(0.1)
+        self.music.play(-1)  # 音楽の再生回数(ループ再生)
+        
+       
+class SoundEffect(Sound):
+    def __init__(self, sd_name) -> None:
+        super().__init__(sd_name)
+        self.music.set_volume(0.3)
+        
+    def start_sound(self):
+        self.music.play(0)
         
 #ゲームオーバー時の処理
 def gameover():
     pg.quit()
     sys.exit()
 
-#爆弾衝突時の処理
-def crash_bomb(ko, lf):
+#衝突時の処理
+def collision_object(ko, lf, se):
     """
     爆弾とこうかとんの衝突時の処理
 
@@ -176,8 +205,8 @@ def crash_bomb(ko, lf):
     #前回衝突時から今回衝突時の時間の差が無敵時間より大きいなら、ライフを減らす
     if time_end - crash_time < INVINCIBLE_TIME:
         return
-    if lf.life != 0:
-        
+    se.start_sound()
+    if lf.life != 0:    
         time.sleep(HIT_STOP)
         crash_time = time.time()#衝突時の時間を保存する
         lf.life -= 1
@@ -187,6 +216,7 @@ def crash_bomb(ko, lf):
     if lf.life == 0:
         gameover()
             
+    
 
 def main():
     os.chdir(os.path.dirname(__file__))
@@ -196,7 +226,12 @@ def main():
     clock = pg.time.Clock()    
     
     #BGMの設定
-    bgm = Sound("こんとどぅふぇ素材No.0129-Last-Horizon.wav")
+    bgm = BGM("こんとどぅふぇ素材No.0129-Last-Horizon.wav")
+    
+    #効果音の設定
+    hit_enemy = SoundEffect(sd_name="nc172283.wav")
+    hit_bomb = SoundEffect(sd_name="nc84862.wav")
+    
     
     #背景の設定
     scr = BackgroundImage(im_pass="pg_bg.jpg" ,title="戦え、効果トン")
@@ -207,12 +242,18 @@ def main():
     #こうかとん のライフ
     life = Life(im_pass="nc237709.png", pos=(200 ,100))
     
+    #敵キャラの設定
+    enemy = Enemy(im_pass="nc223460.png")
+    
     #爆弾の設定
     bomb = [Bomb("bakudan.png") for i in range(BOMB_NUM)]
     
     all_sprites = pg.sprite.Group() #画像の処理用
-    all_sprites.add(scr, koukaton)
-    bomb_sprites = pg.sprite.Group() #衝突判定用
+    bomb_sprites = pg.sprite.Group() #爆弾衝突判定用
+    enemy_sprites = pg.sprite.Group() #敵キャラ衝突判定用
+    
+    all_sprites.add(scr, koukaton, enemy)
+    enemy_sprites.add(enemy)
     for i in range(BOMB_NUM):
         all_sprites.add(bomb[i])
         bomb_sprites.add(bomb[i])
@@ -225,8 +266,11 @@ def main():
         #爆弾の衝突
         bomb_collided = pg.sprite.spritecollide(koukaton, bomb_sprites, True)
         if bomb_collided:
-            crash_bomb(ko=koukaton, lf=life)
-            
+            collision_object(ko=koukaton, lf=life, se=hit_bomb)
+        #敵キャラとの衝突
+        enemy_collided = pg.sprite.spritecollide(koukaton, enemy_sprites, False)
+        if enemy_collided:
+            collision_object(ko=koukaton, lf=life, se=hit_enemy)
             
         for event in pg.event.get():
             if event.type == pg.QUIT:
