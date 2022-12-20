@@ -6,8 +6,7 @@
 ### 操作方法
 - 矢印キーでこうかとんを上下左右に移動する
 - escape で終了
-### 追加機能
-
+### 追加機能(ex04)
 - ライフ の設定 初期ライフは3 LIFE
 - 無敵時間の設定 初期設定は１ INVINCIBLE_TIME
 - 左シフトで ダッシュ
@@ -15,11 +14,20 @@
 - ヒットストップを追加
 - 被弾で画像が変わる
 - BGMの設定
+### 追加機能(ex05)
+- クラスの追加
+- 爆弾を画像に変更
+-
+-
+
 ### メモ
 - 
 - ハートの画像 (nc237709.png)
 - https://commons.nicovideo.jp/material/nc237709
-
+-
+- 爆弾の画像 (bakudan.png)
+- https://www.irasutoya.com/2014/04/blog-post_4.html
+-
 - BGM (こんとどぅふぇ素材No.0129-Last Horizon.wav)
 - https://conte-de-fees.com/bgm/2199.html
 - 音楽：こんとどぅふぇ

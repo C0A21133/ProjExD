@@ -1,25 +1,30 @@
+import copy
+import os
 import pygame as pg
 import random
 import sys
-import copy
-import os
 import time
+
 
 """
 ハートの画像 (nc237709.png)
 https://commons.nicovideo.jp/material/nc237709
 
+爆弾の画像 (bakudan.png)
+https://www.irasutoya.com/2014/04/blog-post_4.html
+
 BGM (こんとどぅふぇ素材No.0129-Last Horizon.wav)
 https://conte-de-fees.com/bgm/2199.html
-
     
 """
 
 WINDOW_SIZE = (1600, 900) #ウインドウサイズ
-LIFE_POINT = 3 #ライフ
-INVINCIBLE_TIME = 1 #無敵時間(sec)
-BOMB_NUM = 2 #爆弾の初期の数
+LIFE_POINT = 2 #ライフ
+INVINCIBLE_TIME = 2 #無敵時間(sec)
+BOMB_NUM = 1 #爆弾の初期の数
 HIT_STOP = 0.2 #ヒットストップの設定
+
+crash_time = 0
 
 class Screen(pg.sprite.Sprite):
     def __init__(self) -> None:
@@ -40,13 +45,13 @@ class Koukaton(Image):
         "left":pg.K_LEFT, "right":pg.K_RIGHT, "up":pg.K_UP, 
         "down":pg.K_DOWN, "dash":pg.K_LSHIFT
         } #キー の設定
-    def __init__(self, im_pass,pos, speed=1) -> None:
+    
+    def __init__(self, im_pass, pos, speed=1) -> None:
         super().__init__(im_pass)
         self.pos = pos
         self.speed = speed
         self.image = pg.transform.rotozoom(self.image, 0, 2.0)
         self.rect.center = self.pos
-        
         
     def blit(self):
         self.screen.blit(self.image, self.rect)
@@ -108,11 +113,11 @@ class Life(Image):
             self.life_rect.append(self.rect)
             self.life_rect[i].center = (self.pos[0] + i * 100, self.pos[1])
         
-        
     def blit(self):
         print(self.life_rect)
         for i in range(self.life):
             self.screen.blit(self.life_image[i], self.life_rect[i])
+
 
 class Bomb(Image):
     def __init__(self, im_pass, speed=[2, 2]) -> None:
@@ -134,24 +139,27 @@ class Bomb(Image):
             #壁にぶつかったら反転
             if 0 >= self.rect[i] or self.rect[i] >= WINDOW_SIZE[i]:
                 self.speed[i] *= -1
-                
-                
-
-crash_time = 0
-
+            
+class Sound:
+    def __init__(self, sd_name) -> None:
+        self.sd_name = sd_name
+        pg.mixer.init(frequency = 44100)    # 初期設定
+        pg.mixer.music.load(self.sd_name)     # 音楽ファイルの読み込み
+        pg.mixer.music.play(-1)  # 音楽の再生回数(ループ再生)
+        
+        
 #ゲームオーバー時の処理
 def gameover():
     pg.quit()
     sys.exit()
 
-def check_bomb(ko, ko_rect, bb, lf):
+#爆弾衝突時の処理
+def check_bomb(ko, lf):
     """
     爆弾とこうかとんの衝突時の処理
 
     Args:
         ko (Koukaton): こうかとん
-        ko_rect (Rect): こうかとん
-        bb (Rect): 爆弾
         lf (Life): ライフ
     """
     global crash_time
@@ -160,19 +168,15 @@ def check_bomb(ko, ko_rect, bb, lf):
     #前回衝突時から今回衝突時の時間の差が無敵時間より大きいなら、ライフを減らす
     if time_end - crash_time < INVINCIBLE_TIME:
         return
+    if lf.life != 0:
+        time.sleep(HIT_STOP)
+        crash_time = time.time()#衝突時の時間を保存する
+        lf.life -= 1
+        num = random.randint(0, 9)
+        ko.im_pass = f"../fig/{num}.png"
     #ライフが0 なら gameover()を実行
-    if ko_rect.colliderect(bb) == False:
-        return
-    else:
-        
-        if lf.life != 0:
-            time.sleep(HIT_STOP)
-            crash_time = time.time()#衝突時の時間を保存する
-            lf.life -= 1
-            num = random.randint(0, 9)
-            ko.im_pass = f"../fig/{num}.png"
-        if lf.life == 0:
-            gameover()
+    if lf.life == 0:
+        gameover()
             
 
 def main():
@@ -183,11 +187,7 @@ def main():
     clock = pg.time.Clock()    
     
     #BGMの設定
-    sound_file = "こんとどぅふぇ素材No.0129-Last-Horizon.wav"
-    pg.mixer.init(frequency = 44100)    # 初期設定
-    pg.mixer.music.load(sound_file)     # 音楽ファイルの読み込み
-    pg.mixer.music.play(-1)             # 音楽の再生回数(ループ再生)
-    
+    bgm = Sound("こんとどぅふぇ素材No.0129-Last-Horizon.wav")
     
     #背景の設定
     scr = BackgroundImage(im_pass="pg_bg.jpg" ,title="戦え、効果トン")
@@ -196,23 +196,27 @@ def main():
     koukaton = Koukaton(im_pass="../fig/0.png", pos=(900, 400))
     
     #こうかとん のライフ
-    #life = Life(im_pass="nc237709.png", pos=(200 ,300))
+    life = Life(im_pass="nc237709.png", pos=(200 ,300))
     
-    #爆弾の設定
     bomb = Bomb("bakudan.png")
     
     all_sprites = pg.sprite.Group()
     all_sprites.add(scr, koukaton, bomb)
+    koukaton_sprites = pg.sprite.Group()
+    koukaton_sprites.add(koukaton)
+    bomb_sprites = pg.sprite.Group()
+    bomb_sprites.add(bomb)
     
     while True:
-        
+        #画像の表示と更新
         all_sprites.draw(scr.screen)
         all_sprites.update()
-           
         
         #爆弾の衝突
-        #check_bomb(ko=koukaton ,ko_rect=koukaton_rect, bb=bomb_circle, lf=life)
-            
+        bomb_collided = pg.sprite.spritecollide(koukaton, bomb_sprites, False)
+        if bomb_collided:
+            check_bomb(ko=koukaton, lf=life)
+        
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 pg.quit()
