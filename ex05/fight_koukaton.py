@@ -300,10 +300,10 @@ def main():
     life = Life(im_pass="nc237709.png", pos=(200 ,100))
     
     #敵キャラの設定
-    enemy = [Enemy(im_pass="nc223460.png") for i in range(ENEMY_NUM)]
+    enemy = [Enemy(im_pass="nc223460.png", speed=[1, 1]) for i in range(ENEMY_NUM)]
     
     #爆弾の設定
-    bomb = [Bomb("bakudan.png") for i in range(BOMB_NUM)]
+    bomb = [Bomb(im_pass="bakudan.png", speed=[1, 1]) for i in range(BOMB_NUM)]
     
     all_sprites = pg.sprite.Group() #画像の処理用
     bomb_sprites = pg.sprite.Group() #爆弾衝突判定用
