@@ -13,8 +13,6 @@ BOMB_NUM = 3 #爆弾の初期の数
 ENEMY_NUM = 2 #敵キャラの数
 HIT_STOP = 0.2 #ヒットストップの設定
 
-crash_time = 0
-
 class Screen(pg.sprite.Sprite):
     def __init__(self) -> None:
         super().__init__()
@@ -23,6 +21,11 @@ class Screen(pg.sprite.Sprite):
 
 class Image(Screen):
     def __init__(self, im_pass) -> None:
+        """画像を扱うクラス
+
+        Args:
+            im_pass (string): 読み込む画像のパス
+        """
         super().__init__()
         self.im_pass = im_pass
         self.image = pg.image.load(im_pass)
@@ -37,6 +40,12 @@ class Koukaton(Image):
         } #キー の設定
     
     def __init__(self, im_pass, pos, speed=1) -> None:
+        """こんかとんのクラス
+
+        Args:
+            pos (list): 初期座標
+            speed (int, optional): こうかとんの移動速度. Defaults to 1.
+        """
         super().__init__(im_pass)
         self.pos = pos
         self.speed = speed
@@ -85,12 +94,23 @@ class Koukaton(Image):
                 self.rect = before_koukaton_rect
         
     def change_image(self, ip):
+        """画像を変更する
+
+        Args:
+            ip (string): 画像のパス
+        """
         self.image = pg.image.load(ip)
         self.image = pg.transform.rotozoom(self.image, 0, 2.0)
             
 
 class Enemy(Image):
     def __init__(self, im_pass, speed=[1, 1]) -> None:
+        """敵のクラス
+
+        Args:
+            im_pass (string): 読み込む画像のパス
+            speed (list, optional): [x方向の速度, y方向の速度]. Defaults to [1, 1].
+        """
         super().__init__(im_pass)
         x = random.randint(0, WINDOW_SIZE[0])
         y = random.randint(0, WINDOW_SIZE[1])
@@ -114,12 +134,11 @@ class Enemy(Image):
 
 class BackgroundImage(Image):
     def __init__(self, im_pass,  title) -> None:
-        """_summary_
+        """背景画像のクラス
 
         Args:
-            im_pass (string): _description_
-            title (string): _description_
-            size (tuple): _description_
+            im_pass (string): 読み込む画像のパス
+            title (string): タイトル名
         """
         super().__init__(im_pass)    
         self.title = title
@@ -128,11 +147,16 @@ class BackgroundImage(Image):
     def blit(self):
         self.screen.blit(self.image, self.rect)
         
-    def update(self):
-        pass
         
 class Life(Image):
     def __init__(self, im_pass, pos, life=LIFE_POINT):
+        """こうかとんのライフのクラス
+
+        Args:
+            im_pass (string): 読み込む画像のパス
+            pos (tuple): 一つ目のライフの位置
+            life (int, optional): 初期ライフの数. Defaults to LIFE_POINT.
+        """
         super().__init__(im_pass)
         self.life = life
         self.pos = pos
@@ -151,6 +175,12 @@ class Life(Image):
 
 class Bomb(Image):
     def __init__(self, im_pass, speed=[1, 1]) -> None:
+        """爆弾のクラス
+
+        Args:
+            im_pass (string): 読み込む画像のパス
+            speed (list, optional): [x方向の速度, y方向の速度]. Defaults to [1, 1].
+        """
         super().__init__(im_pass)
         x = random.randint(0, WINDOW_SIZE[0])
         y = random.randint(0, WINDOW_SIZE[1])
@@ -175,6 +205,11 @@ class Bomb(Image):
             
 class Sound:
     def __init__(self, sd_name) -> None:
+        """音のクラス
+
+        Args:
+            sd_name (string): 読み込むサウンドのファイル名
+        """
         self.sd_name = sd_name
         pg.mixer.init(frequency = 44100)    # 初期設定
         self.music = pg.mixer.Sound(self.sd_name)     # 音楽ファイルの読み込み
@@ -182,6 +217,8 @@ class Sound:
         
 class BGM(Sound):
     def __init__(self, sd_name) -> None:
+        """BGMのクラス
+        """
         super().__init__(sd_name)
         self.music.set_volume(0.1)
         self.music.play(-1)  # 音楽の再生回数(ループ再生)
@@ -189,6 +226,8 @@ class BGM(Sound):
         
 class SoundEffect(Sound):
     def __init__(self, sd_name) -> None:
+        """効果音のクラス
+        """
         super().__init__(sd_name)
         self.music.set_volume(0.3)
         
@@ -232,6 +271,7 @@ def collision_object(ko, lf, se):
     
 
 def main():
+    global crash_time
     os.chdir(os.path.dirname(__file__))
     print("pass:"+os.getcwd())
     pg.init()
@@ -247,7 +287,7 @@ def main():
     burn_sound = SoundEffect(sd_name="nc224596.wav")
     
     #背景の設定
-    scr = BackgroundImage(im_pass="pg_bg.jpg" ,title="戦え、効果トン")
+    scr = BackgroundImage(im_pass="pg_bg.jpg" ,title="戦え、こうかとん")
     
     #こうかとん の設定
     koukaton = Koukaton(im_pass="../fig/0.png", pos=(900, 400))
@@ -272,6 +312,8 @@ def main():
     for i in range(ENEMY_NUM):
         all_sprites.add(enemy[i])
         enemy_sprites.add(enemy[i])
+    
+    crash_time = time.time()
     
     while True:
         #画像の表示と更新
@@ -301,10 +343,10 @@ def main():
                     pg.quit()
                     sys.exit()
                 if event.key == Koukaton.key_dic["reset"]:
+                    crash_time = time.time()
                     main()  
                 
-                print(f"push:{pg.key.name(event.key)}")
-                
+                print(f"push:{pg.key.name(event.key)}")  
 
         all_sprites.update()
         pg.display.update()
