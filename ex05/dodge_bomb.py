@@ -18,22 +18,24 @@ https://conte-de-fees.com/bgm/2199.html
 WINDOW_SIZE = (1600, 900) #ウインドウサイズ
 LIFE_POINT = 3 #ライフ
 INVINCIBLE_TIME = 1 #無敵時間(sec)
-BOMB_NUM = 1 #爆弾の初期の数
+BOMB_NUM = 2 #爆弾の初期の数
 HIT_STOP = 0.2 #ヒットストップの設定
 
+class Screen(pg.sprite.Sprite):
+    def __init__(self) -> None:
+        super().__init__()
+        self.screen = pg.display.set_mode(WINDOW_SIZE)
 
-class Image(pg.sprite.Sprite):
+
+class Image(Screen):
     def __init__(self, im_pass) -> None:
         super().__init__()
         self.im_pass = im_pass
         self.image = pg.image.load(im_pass)
         self.rect = self.image.get_rect()
         
-        
-        self.bg = pg.display.set_mode(WINDOW_SIZE)
-        
-class Koukaton(Image):
-    
+            
+class Koukaton(Image):   
     key_dic = {
         "left":pg.K_LEFT, "right":pg.K_RIGHT, "up":pg.K_UP, 
         "down":pg.K_DOWN, "dash":pg.K_LSHIFT
@@ -47,7 +49,7 @@ class Koukaton(Image):
         
         
     def blit(self):
-        self.bg.blit(self.image, self.rect)
+        self.screen.blit(self.image, self.rect)
         
     def update(self):
         #こうかとん の移動の処理
@@ -66,20 +68,18 @@ class Koukaton(Image):
             self.speed = 2
         elif pressed[Koukaton.key_dic["dash"]] == False:
             self.speed = 1
-        """
-        
-        """
+            
         #こうかとん が画面外に出たとき、元の位置に戻す、
         for i in range(2):
             # i == 0 のとき x座標が範囲外
             # i == 1 のとき y座標が範囲外
-            if 0 >= self.rect[i] or self.rect[i] + self.rect[2+i]>= WINDOW_SIZE[i]:
+            if 0 >= self.rect[i] or self.rect[i]>= WINDOW_SIZE[i]:
                 print(before_koukaton_rect)
                 self.rect = before_koukaton_rect
         
 
-class Screen(Image):
-    def __init__(self, im_pass,  title, size) -> None:
+class BackgroundImage(Image):
+    def __init__(self, im_pass,  title) -> None:
         """_summary_
 
         Args:
@@ -92,8 +92,7 @@ class Screen(Image):
         pg.display.set_caption(self.title)
         
     def blit(self):
-        self.bg.blit(self.image, self.rect)
-        
+        self.screen.blit(self.image, self.rect)
         
         
 class Life(Image):
@@ -113,24 +112,27 @@ class Life(Image):
     def blit(self):
         print(self.life_rect)
         for i in range(self.life):
-            self.bg.blit(self.life_image[i], self.life_rect[i])
+            self.screen.blit(self.life_image[i], self.life_rect[i])
 
-class Bomb:
-    def __init__(self, rad= 10, color = "red", speed=[1, 1]) -> None:
+class Bomb(Image):
+    def __init__(self, im_pass, speed=[2, 2]) -> None:
+        super().__init__(im_pass)
         x = random.randint(0, WINDOW_SIZE[0])
         y = random.randint(0, WINDOW_SIZE[1])
         self.pos = [x, y]
-        self.rad = rad
-        self.color = color
         self.speed = speed
+        self.image = pg.transform.rotozoom(self.image, 0, 0.3)
         
-    def move(self):
+    def blit(self):
+        self.screen.blit(self.image, self.rect)
+        
+    def update(self):
+        self.rect.move_ip(self.speed)
         for i in range(2):
             # i == 0 のとき x 軸の計算
             # i == 1 のとき y 軸の計算
-            self.pos[i] += self.speed[i]
             #壁にぶつかったら反転
-            if 0 >= self.pos[i] or self.pos[i] + self.rad >= WINDOW_SIZE[i]:
+            if 0 >= self.rect[i] or self.rect[i] >= WINDOW_SIZE[i]:
                 self.speed[i] *= -1
                 
                 
@@ -177,10 +179,7 @@ def main():
     os.chdir(os.path.dirname(__file__))
     print("pass:"+os.getcwd())
     pg.init()
-    
-    
-    
-    
+    scr = Screen()
     clock = pg.time.Clock()    
     
     #BGMの設定
@@ -191,7 +190,7 @@ def main():
     
     
     #背景の設定
-    scr = Screen(im_pass="pg_bg.jpg" ,title="戦え、効果トン", size=WINDOW_SIZE)
+    scr = BackgroundImage(im_pass="pg_bg.jpg" ,title="戦え、効果トン")
     
     #こうかとん の設定
     koukaton = Koukaton(im_pass="../fig/0.png", pos=(900, 400))
@@ -199,27 +198,17 @@ def main():
     #こうかとん のライフ
     #life = Life(im_pass="nc237709.png", pos=(200 ,300))
     
-
-
     #爆弾の設定
-    bomb = Bomb()
+    bomb = Bomb("bakudan.png")
+    
+    all_sprites = pg.sprite.Group()
+    all_sprites.add(scr, koukaton, bomb)
     
     while True:
-        #こうかとん の画像の更新
-        #koukaton_image = pg.image.load(koukaton.im_pass)
-        #koukaton_image = pg.transform.rotozoom(koukaton_image, 0, 2.0)
-        koukaton.update()
         
-        scr.blit()
-        koukaton.blit()
-        #life.blit()
-    
-        
-        #爆弾の移動
-        bomb.move()
-        
-            
-            
+        all_sprites.draw(scr.screen)
+        all_sprites.update()
+           
         
         #爆弾の衝突
         #check_bomb(ko=koukaton ,ko_rect=koukaton_rect, bb=bomb_circle, lf=life)
@@ -236,6 +225,7 @@ def main():
                 if event.key == pg.K_F1:
                     main()
                 print(f"push:{pg.key.name(event.key)}")
+      
         pg.display.update()
         clock.tick(1000)
 
