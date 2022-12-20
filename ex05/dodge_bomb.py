@@ -33,6 +33,7 @@ class Image(pg.sprite.Sprite):
         self.bg = pg.display.set_mode(WINDOW_SIZE)
         
 class Koukaton(Image):
+    
     key_dic = {
         "left":pg.K_LEFT, "right":pg.K_RIGHT, "up":pg.K_UP, 
         "down":pg.K_DOWN, "dash":pg.K_LSHIFT
@@ -44,9 +45,39 @@ class Koukaton(Image):
         self.image = pg.transform.rotozoom(self.image, 0, 2.0)
         self.rect.center = self.pos
         
+        
     def blit(self):
         self.bg.blit(self.image, self.rect)
         
+    def update(self):
+        #こうかとん の移動の処理
+        before_koukaton_rect = copy.deepcopy(self.rect) #こうかとん の移動前の座標
+        pressed = pg.key.get_pressed()
+        if pressed[Koukaton.key_dic["left"]]:
+            self.rect.move_ip(-1 * self.speed, 0)
+        if pressed[Koukaton.key_dic["right"]]:
+            self.rect.move_ip(self.speed, 0)
+        if pressed[Koukaton.key_dic["up"]]:
+            self.rect.move_ip(0, -1 * self.speed)
+        if pressed[Koukaton.key_dic["down"]]:
+            self.rect.move_ip(0, self.speed)
+            
+        if pressed[Koukaton.key_dic["dash"]]:
+            self.speed = 2
+        elif pressed[Koukaton.key_dic["dash"]] == False:
+            self.speed = 1
+        """
+        
+        """
+        #こうかとん が画面外に出たとき、元の位置に戻す、
+        for i in range(2):
+            # i == 0 のとき x座標が範囲外
+            # i == 1 のとき y座標が範囲外
+            if 0 >= self.rect[i] or self.rect[i] + self.rect[2+i]>= WINDOW_SIZE[i]:
+                print(before_koukaton_rect)
+                self.rect = before_koukaton_rect
+        
+
 class Screen(Image):
     def __init__(self, im_pass,  title, size) -> None:
         """_summary_
@@ -175,8 +206,9 @@ def main():
     
     while True:
         #こうかとん の画像の更新
-        koukaton_image = pg.image.load(koukaton.im_pass)
-        koukaton_image = pg.transform.rotozoom(koukaton_image, 0, 2.0)
+        #koukaton_image = pg.image.load(koukaton.im_pass)
+        #koukaton_image = pg.transform.rotozoom(koukaton_image, 0, 2.0)
+        koukaton.update()
         
         scr.blit()
         koukaton.blit()
@@ -188,34 +220,6 @@ def main():
         
             
             
-        """
-        #こうかとん の移動の処理
-        before_koukaton_rect = copy.deepcopy(koukaton_rect) #こうかとん の移動前の座標
-        pressed = pg.key.get_pressed()
-        if pressed[key_dic["left"]]:
-            koukaton_rect.move_ip(-1 * koukaton.speed, 0)
-        if pressed[key_dic["right"]]:
-            koukaton_rect.move_ip(koukaton.speed, 0)
-        if pressed[key_dic["up"]]:
-            koukaton_rect.move_ip(0, -1 * koukaton.speed)
-        if pressed[key_dic["down"]]:
-            koukaton_rect.move_ip(0, koukaton.speed)
-            
-        if pressed[key_dic["dash"]]:
-            koukaton.speed = 2
-        elif pressed[key_dic["dash"]] == False:
-            koukaton.speed = 1
-        """
-        
-        """
-        #こうかとん が画面外に出たとき、元の位置に戻す、
-        for i in range(2):
-            # i == 0 のとき x座標が範囲外
-            # i == 1 のとき y座標が範囲外
-            if 0 >= koukaton_rect[i] or koukaton_rect[i] + koukaton_rect[2+i]>= WINDOW_SIZE[i]:
-                print(before_koukaton_rect)
-                koukaton_rect = before_koukaton_rect
-        """
         
         #爆弾の衝突
         #check_bomb(ko=koukaton ,ko_rect=koukaton_rect, bb=bomb_circle, lf=life)
