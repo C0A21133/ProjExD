@@ -20,7 +20,7 @@ https://conte-de-fees.com/bgm/2199.html
 
 WINDOW_SIZE = (1600, 900) #ウインドウサイズ
 LIFE_POINT = 2 #ライフ
-INVINCIBLE_TIME = 2 #無敵時間(sec)
+INVINCIBLE_TIME = 1 #無敵時間(sec)
 BOMB_NUM = 1 #爆弾の初期の数
 HIT_STOP = 0.2 #ヒットストップの設定
 
@@ -51,6 +51,7 @@ class Koukaton(Image):
         self.pos = pos
         self.speed = speed
         self.image = pg.transform.rotozoom(self.image, 0, 2.0)
+        self.rect = self.image.get_rect()
         self.rect.center = self.pos
         
     def blit(self):
@@ -78,7 +79,7 @@ class Koukaton(Image):
         for i in range(2):
             # i == 0 のとき x座標が範囲外
             # i == 1 のとき y座標が範囲外
-            if 0 >= self.rect[i] or self.rect[i]>= WINDOW_SIZE[i]:
+            if 0 >= self.rect[i] or self.rect[i] + self.rect[i+2]>= WINDOW_SIZE[i]:
                 print(before_koukaton_rect)
                 self.rect = before_koukaton_rect
         
@@ -127,6 +128,7 @@ class Bomb(Image):
         self.pos = [x, y]
         self.speed = speed
         self.image = pg.transform.rotozoom(self.image, 0, 0.3)
+        self.rect = self.image.get_rect()
         
     def blit(self):
         self.screen.blit(self.image, self.rect)
@@ -137,7 +139,7 @@ class Bomb(Image):
             # i == 0 のとき x 軸の計算
             # i == 1 のとき y 軸の計算
             #壁にぶつかったら反転
-            if 0 >= self.rect[i] or self.rect[i] >= WINDOW_SIZE[i]:
+            if 0 >= self.rect[i] or self.rect[i] + self.rect[i+2] >= WINDOW_SIZE[i]:
                 self.speed[i] *= -1
             
 class Sound:
@@ -169,11 +171,13 @@ def check_bomb(ko, lf):
     if time_end - crash_time < INVINCIBLE_TIME:
         return
     if lf.life != 0:
+        
         time.sleep(HIT_STOP)
         crash_time = time.time()#衝突時の時間を保存する
         lf.life -= 1
         num = random.randint(0, 9)
         ko.im_pass = f"../fig/{num}.png"
+        print(ko.im_pass)
     #ライフが0 なら gameover()を実行
     if lf.life == 0:
         gameover()
@@ -210,13 +214,12 @@ def main():
     while True:
         #画像の表示と更新
         all_sprites.draw(scr.screen)
-        all_sprites.update()
         
         #爆弾の衝突
         bomb_collided = pg.sprite.spritecollide(koukaton, bomb_sprites, False)
         if bomb_collided:
             check_bomb(ko=koukaton, lf=life)
-        
+            
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 pg.quit()
@@ -229,7 +232,8 @@ def main():
                 if event.key == pg.K_F1:
                     main()
                 print(f"push:{pg.key.name(event.key)}")
-      
+                
+        all_sprites.update()
         pg.display.update()
         clock.tick(1000)
 
