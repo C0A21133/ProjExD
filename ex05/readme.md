@@ -15,7 +15,7 @@
 - 被弾で画像が変わる
 - BGMの設定
 ### 追加機能(ex05)
-- クラスの追加
+- クラスの追加 Screen, Image, Koukaton, Enemy, BackGroundImage, Life, Bomb, Sound, BGM, SoundEffect
 - 爆弾を画像に変更
 - 爆弾に当たった時爆弾が消えるように設定
 - 敵キャラの追加

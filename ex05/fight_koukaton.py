@@ -132,7 +132,7 @@ class Enemy(Image):
             if 0 >= self.rect[i] or self.rect[i] + self.rect[i+2] >= WINDOW_SIZE[i]:
                 self.speed[i] *= -1
 
-class BackgroundImage(Image):
+class BackGroundImage(Image):
     def __init__(self, im_pass,  title) -> None:
         """背景画像のクラス
 
@@ -223,6 +223,8 @@ class BGM(Sound):
         self.music.set_volume(0.1)
         self.music.play(-1)  # 音楽の再生回数(ループ再生)
         
+    def stop_sound(self):
+        self.music.stop()
         
 class SoundEffect(Sound):
     def __init__(self, sd_name) -> None:
@@ -233,6 +235,8 @@ class SoundEffect(Sound):
         
     def start_sound(self):
         self.music.play(0)
+        
+    
         
 #ゲームオーバー時の処理
 def gameover():
@@ -287,7 +291,7 @@ def main():
     burn_sound = SoundEffect(sd_name="nc224596.wav")
     
     #背景の設定
-    scr = BackgroundImage(im_pass="pg_bg.jpg" ,title="戦え、こうかとん")
+    scr = BackGroundImage(im_pass="pg_bg.jpg" ,title="戦え、こうかとん")
     
     #こうかとん の設定
     koukaton = Koukaton(im_pass="../fig/0.png", pos=(900, 400))
@@ -332,7 +336,8 @@ def main():
             se = hit_enemy
         if enemy_collided:
             collision_object(ko=koukaton, lf=life, se=se)
-            
+        
+        #キーの入力時の処理
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 pg.quit()
@@ -344,6 +349,7 @@ def main():
                     sys.exit()
                 if event.key == Koukaton.key_dic["reset"]:
                     crash_time = time.time()
+                    bgm.stop_sound()
                     main()  
                 
                 print(f"push:{pg.key.name(event.key)}")  
