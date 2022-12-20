@@ -21,7 +21,7 @@ https://conte-de-fees.com/bgm/2199.html
 WINDOW_SIZE = (1600, 900) #ウインドウサイズ
 LIFE_POINT = 3 #ライフ
 INVINCIBLE_TIME = 1 #無敵時間(sec)
-BOMB_NUM = 1 #爆弾の初期の数
+BOMB_NUM = 2 #爆弾の初期の数
 HIT_STOP = 0.2 #ヒットストップの設定
 
 crash_time = 0
@@ -146,6 +146,7 @@ class Bomb(Image):
             #壁にぶつかったら反転
             if 0 >= self.rect[i] or self.rect[i] + self.rect[i+2] >= WINDOW_SIZE[i]:
                 self.speed[i] *= -1
+        
             
 class Sound:
     def __init__(self, sd_name) -> None:
@@ -161,7 +162,7 @@ def gameover():
     sys.exit()
 
 #爆弾衝突時の処理
-def check_bomb(ko, lf):
+def crash_bomb(ko, lf):
     """
     爆弾とこうかとんの衝突時の処理
 
@@ -207,15 +208,14 @@ def main():
     life = Life(im_pass="nc237709.png", pos=(200 ,100))
     
     #爆弾の設定
-    bomb = Bomb("bakudan.png")
+    bomb = [Bomb("bakudan.png") for i in range(BOMB_NUM)]
     
-    #画像の処理用
-    all_sprites = pg.sprite.Group()
-    all_sprites.add(scr, koukaton, bomb)
-    
-    #衝突判定用
-    bomb_sprites = pg.sprite.Group()
-    bomb_sprites.add(bomb)
+    all_sprites = pg.sprite.Group() #画像の処理用
+    all_sprites.add(scr, koukaton)
+    bomb_sprites = pg.sprite.Group() #衝突判定用
+    for i in range(BOMB_NUM):
+        all_sprites.add(bomb[i])
+        bomb_sprites.add(bomb[i])
     
     while True:
         #画像の表示と更新
@@ -223,9 +223,9 @@ def main():
         life.blit()
         
         #爆弾の衝突
-        bomb_collided = pg.sprite.spritecollide(koukaton, bomb_sprites, False)
+        bomb_collided = pg.sprite.spritecollide(koukaton, bomb_sprites, True)
         if bomb_collided:
-            check_bomb(ko=koukaton, lf=life)
+            crash_bomb(ko=koukaton, lf=life)
             
             
         for event in pg.event.get():
