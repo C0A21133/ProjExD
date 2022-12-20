@@ -20,6 +20,7 @@
 - 爆弾に当たった時爆弾が消えるように設定
 - 敵キャラの追加
 - 効果音の追加
+- 左CTRでアタックモード 敵を倒せる
 
 ### メモ
 - 
@@ -29,11 +30,17 @@
 - 爆弾の画像 (bakudan.png)
 - https://www.irasutoya.com/2014/04/blog-post_4.html
 -
+- 炎の画像 (nc289332.png)
+- https://commons.nicovideo.jp/material/nc289332
+-
 - 効果音 (nc172283.wav)
 - https://commons.nicovideo.jp/material/nc172283
 -
 - 効果音 (nc84862.wav)
 - https://commons.nicovideo.jp/material/nc84862
+-
+- 効果音 (nc224596.wav)
+- https://commons.nicovideo.jp/material/nc224596
 -
 - BGM (こんとどぅふぇ素材No.0129-Last Horizon.wav)
 - https://conte-de-fees.com/bgm/2199.html

@@ -9,7 +9,8 @@ import time
 WINDOW_SIZE = (1600, 900) #ウインドウサイズ
 LIFE_POINT = 3 #ライフ
 INVINCIBLE_TIME = 1 #無敵時間(sec)
-BOMB_NUM = 1 #爆弾の初期の数
+BOMB_NUM = 3 #爆弾の初期の数
+ENEMY_NUM = 2 #敵キャラの数
 HIT_STOP = 0.2 #ヒットストップの設定
 
 crash_time = 0
@@ -31,7 +32,8 @@ class Image(Screen):
 class Koukaton(Image):   
     key_dic = {
         "left":pg.K_LEFT, "right":pg.K_RIGHT, "up":pg.K_UP, 
-        "down":pg.K_DOWN, "dash":pg.K_LSHIFT, "attack":pg.K_LCTRL
+        "down":pg.K_DOWN, "dash":pg.K_LSHIFT, "attack":pg.K_LCTRL,
+        "exit":pg.K_ESCAPE, "reset":pg.K_F1
         } #キー の設定
     
     def __init__(self, im_pass, pos, speed=1) -> None:
@@ -41,6 +43,10 @@ class Koukaton(Image):
         self.image = pg.transform.rotozoom(self.image, 0, 2.0)
         self.rect = self.image.get_rect()
         self.rect.center = self.pos
+        self.effct_image = pg.image.load("nc289332.png")
+        self.effect_image = pg.transform.rotozoom(self.effct_image, 0, 0.6)
+        self.effect_rect = self.effect_image.get_rect()
+        self.attack_mode = False
         
     def blit(self):
         self.screen.blit(self.image, self.rect)
@@ -64,8 +70,12 @@ class Koukaton(Image):
             self.speed = 1
         
         if pressed[Koukaton.key_dic["attack"]]:
-            pass
-            
+            self.attack_mode = True     
+            self.effect_rect.center = self.rect.center
+            self.screen.blit(self.effect_image, self.effect_rect)
+        elif pressed[Koukaton.key_dic["attack"]] == False:
+            self.attack_mode = False
+        
         #こうかとん が画面外に出たとき、元の位置に戻す、
         for i in range(2):
             # i == 0 のとき x座標が範囲外
@@ -77,7 +87,7 @@ class Koukaton(Image):
     def change_image(self, ip):
         self.image = pg.image.load(ip)
         self.image = pg.transform.rotozoom(self.image, 0, 2.0)
-        
+            
 
 class Enemy(Image):
     def __init__(self, im_pass, speed=[1, 1]) -> None:
@@ -176,7 +186,7 @@ class BGM(Sound):
         self.music.set_volume(0.1)
         self.music.play(-1)  # 音楽の再生回数(ループ再生)
         
-       
+        
 class SoundEffect(Sound):
     def __init__(self, sd_name) -> None:
         super().__init__(sd_name)
@@ -198,14 +208,17 @@ def collision_object(ko, lf, se):
     Args:
         ko (Koukaton): こうかとん
         lf (Life): ライフ
+        se (SoundEffect): 効果音
     """
     global crash_time
     time_end = time.time()
-    
     #前回衝突時から今回衝突時の時間の差が無敵時間より大きいなら、ライフを減らす
     if time_end - crash_time < INVINCIBLE_TIME:
         return
     se.start_sound()
+    #アタックモードならその後の処理はしない
+    if ko.attack_mode:
+        return
     if lf.life != 0:    
         time.sleep(HIT_STOP)
         crash_time = time.time()#衝突時の時間を保存する
@@ -231,7 +244,7 @@ def main():
     #効果音の設定
     hit_enemy = SoundEffect(sd_name="nc172283.wav")
     hit_bomb = SoundEffect(sd_name="nc84862.wav")
-    
+    burn_sound = SoundEffect(sd_name="nc224596.wav")
     
     #背景の設定
     scr = BackgroundImage(im_pass="pg_bg.jpg" ,title="戦え、効果トン")
@@ -243,7 +256,7 @@ def main():
     life = Life(im_pass="nc237709.png", pos=(200 ,100))
     
     #敵キャラの設定
-    enemy = Enemy(im_pass="nc223460.png")
+    enemy = [Enemy(im_pass="nc223460.png") for i in range(ENEMY_NUM)]
     
     #爆弾の設定
     bomb = [Bomb("bakudan.png") for i in range(BOMB_NUM)]
@@ -252,11 +265,13 @@ def main():
     bomb_sprites = pg.sprite.Group() #爆弾衝突判定用
     enemy_sprites = pg.sprite.Group() #敵キャラ衝突判定用
     
-    all_sprites.add(scr, koukaton, enemy)
-    enemy_sprites.add(enemy)
+    all_sprites.add(scr, koukaton)
     for i in range(BOMB_NUM):
         all_sprites.add(bomb[i])
         bomb_sprites.add(bomb[i])
+    for i in range(ENEMY_NUM):
+        all_sprites.add(enemy[i])
+        enemy_sprites.add(enemy[i])
     
     while True:
         #画像の表示と更新
@@ -268,9 +283,13 @@ def main():
         if bomb_collided:
             collision_object(ko=koukaton, lf=life, se=hit_bomb)
         #敵キャラとの衝突
-        enemy_collided = pg.sprite.spritecollide(koukaton, enemy_sprites, False)
+        enemy_collided = pg.sprite.spritecollide(koukaton, enemy_sprites, koukaton.attack_mode)
+        if koukaton.attack_mode:
+            se = burn_sound
+        else:
+            se = hit_enemy
         if enemy_collided:
-            collision_object(ko=koukaton, lf=life, se=hit_enemy)
+            collision_object(ko=koukaton, lf=life, se=se)
             
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -278,13 +297,15 @@ def main():
                 sys.exit()
                 
             if event.type == pg.KEYDOWN:
-                if event.key == pg.K_ESCAPE:
+                if event.key == Koukaton.key_dic["exit"]:
                     pg.quit()
                     sys.exit()
-                if event.key == pg.K_F1:
-                    main()
+                if event.key == Koukaton.key_dic["reset"]:
+                    main()  
+                
                 print(f"push:{pg.key.name(event.key)}")
                 
+
         all_sprites.update()
         pg.display.update()
         clock.tick(1000)
