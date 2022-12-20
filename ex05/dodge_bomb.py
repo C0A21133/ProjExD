@@ -33,6 +33,10 @@ class Image(pg.sprite.Sprite):
         self.bg = pg.display.set_mode(WINDOW_SIZE)
         
 class Koukaton(Image):
+    key_dic = {
+        "left":pg.K_LEFT, "right":pg.K_RIGHT, "up":pg.K_UP, 
+        "down":pg.K_DOWN, "dash":pg.K_LSHIFT
+        } #キー の設定
     def __init__(self, im_pass,pos, speed=1) -> None:
         super().__init__(im_pass)
         self.pos = pos
@@ -144,10 +148,7 @@ def main():
     pg.init()
     
     
-    key_dic = {
-        "left":pg.K_LEFT, "right":pg.K_RIGHT, "up":pg.K_UP, 
-        "down":pg.K_DOWN, "dash":pg.K_LSHIFT
-        } #キー の設定
+    
     
     clock = pg.time.Clock()    
     
