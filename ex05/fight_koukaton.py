@@ -244,7 +244,7 @@ def gameover():
     sys.exit()
 
 #衝突時の処理
-def collision_object(ko, lf, se):
+def collision_object(ko, lf, se, obj=None):
     """
     爆弾とこうかとんの衝突時の処理
 
@@ -259,8 +259,8 @@ def collision_object(ko, lf, se):
     if time_end - crash_time < INVINCIBLE_TIME:
         return
     se.start_sound()
-    #アタックモードならその後の処理はしない
-    if ko.attack_mode:
+    #アタックモードで衝突したのが敵ならその後の処理はしない
+    if ko.attack_mode and obj == "enemy":
         return
     if lf.life != 0:    
         time.sleep(HIT_STOP)
@@ -335,7 +335,7 @@ def main():
         else:
             se = hit_enemy
         if enemy_collided:
-            collision_object(ko=koukaton, lf=life, se=se)
+            collision_object(ko=koukaton, lf=life, se=se, obj="enemy")
         
         #キーの入力時の処理
         for event in pg.event.get():
