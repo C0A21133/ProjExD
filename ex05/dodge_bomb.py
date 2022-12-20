@@ -165,7 +165,7 @@ def main():
     koukaton = Koukaton(im_pass="../fig/0.png", pos=(900, 400))
     
     #こうかとん のライフ
-    life = Life(im_pass="nc237709.png", pos=(200 ,300))
+    #life = Life(im_pass="nc237709.png", pos=(200 ,300))
     
 
 
@@ -179,7 +179,7 @@ def main():
         
         scr.blit()
         koukaton.blit()
-        life.blit()
+        #life.blit()
     
         
         #爆弾の移動
