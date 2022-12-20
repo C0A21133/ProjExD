@@ -19,7 +19,7 @@ https://conte-de-fees.com/bgm/2199.html
 """
 
 WINDOW_SIZE = (1600, 900) #ウインドウサイズ
-LIFE_POINT = 2 #ライフ
+LIFE_POINT = 3 #ライフ
 INVINCIBLE_TIME = 1 #無敵時間(sec)
 BOMB_NUM = 1 #爆弾の初期の数
 HIT_STOP = 0.2 #ヒットストップの設定
@@ -83,6 +83,11 @@ class Koukaton(Image):
                 print(before_koukaton_rect)
                 self.rect = before_koukaton_rect
         
+    def change_image(self, ip):
+        self.image = pg.image.load(ip)
+        self.image = pg.transform.rotozoom(self.image, 0, 2.0)
+        
+        
 
 class BackgroundImage(Image):
     def __init__(self, im_pass,  title) -> None:
@@ -111,17 +116,16 @@ class Life(Image):
         for i in range(self.life):
             self.life_image.append(self.image)
             self.life_image[i] = pg.transform.rotozoom(self.life_image[i], 0, 0.3)
-            self.life_rect.append(self.rect)
+            self.life_rect.append(self.life_image[i].get_rect())
             self.life_rect[i].center = (self.pos[0] + i * 100, self.pos[1])
         
     def blit(self):
-        print(self.life_rect)
         for i in range(self.life):
             self.screen.blit(self.life_image[i], self.life_rect[i])
 
 
 class Bomb(Image):
-    def __init__(self, im_pass, speed=[2, 2]) -> None:
+    def __init__(self, im_pass, speed=[1, 1]) -> None:
         super().__init__(im_pass)
         x = random.randint(0, WINDOW_SIZE[0])
         y = random.randint(0, WINDOW_SIZE[1])
@@ -129,6 +133,7 @@ class Bomb(Image):
         self.speed = speed
         self.image = pg.transform.rotozoom(self.image, 0, 0.3)
         self.rect = self.image.get_rect()
+        self.rect.center = self.pos
         
     def blit(self):
         self.screen.blit(self.image, self.rect)
@@ -176,8 +181,7 @@ def check_bomb(ko, lf):
         crash_time = time.time()#衝突時の時間を保存する
         lf.life -= 1
         num = random.randint(0, 9)
-        ko.im_pass = f"../fig/{num}.png"
-        print(ko.im_pass)
+        ko.change_image(f"../fig/{num}.png")
     #ライフが0 なら gameover()を実行
     if lf.life == 0:
         gameover()
@@ -200,25 +204,29 @@ def main():
     koukaton = Koukaton(im_pass="../fig/0.png", pos=(900, 400))
     
     #こうかとん のライフ
-    life = Life(im_pass="nc237709.png", pos=(200 ,300))
+    life = Life(im_pass="nc237709.png", pos=(200 ,100))
     
+    #爆弾の設定
     bomb = Bomb("bakudan.png")
     
+    #画像の処理用
     all_sprites = pg.sprite.Group()
     all_sprites.add(scr, koukaton, bomb)
-    koukaton_sprites = pg.sprite.Group()
-    koukaton_sprites.add(koukaton)
+    
+    #衝突判定用
     bomb_sprites = pg.sprite.Group()
     bomb_sprites.add(bomb)
     
     while True:
         #画像の表示と更新
         all_sprites.draw(scr.screen)
+        life.blit()
         
         #爆弾の衝突
         bomb_collided = pg.sprite.spritecollide(koukaton, bomb_sprites, False)
         if bomb_collided:
             check_bomb(ko=koukaton, lf=life)
+            
             
         for event in pg.event.get():
             if event.type == pg.QUIT:
