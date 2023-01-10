@@ -34,7 +34,7 @@
 - 経過時間の表示 佐野
 ### メモ
 - 背景画像 (space.jpg)
-- 
+- http://diamondshp.starfree.jp/material/nature.html#st
 - 弾の画像 (nc138278) 
 - https://commons.nicovideo.jp/material/nc138278
 - ハートの画像 (nc237709.png)
@@ -44,8 +44,7 @@
 - 炎の画像 (nc289332.png)
 - https://commons.nicovideo.jp/material/nc289332
 - 敵の画像 (Green.png, Pink.png, Purple.png)
-- 
-- https://commons.nicovideo.jp/material/nc223460
+- https://dotown.maeda-design-room.net/category/interesting/
 - 効果音 (nc172283.wav)
 - https://commons.nicovideo.jp/material/nc172283
 - 効果音 (nc84862.wav)
