@@ -10,7 +10,6 @@ WINDOW_SIZE = (1400, 900) #ウインドウサイズ
 LIFE_POINT = 3 #ライフ
 INVINCIBLE_TIME = 1 #無敵時間(sec)
 BOMB_NUM = 3 #爆弾の初期の数
-ENEMY_NUM = 5 #敵キャラの数
 HIT_STOP = 0.2 #ヒットストップの設定
 
 class Screen(pg.sprite.Sprite):
@@ -139,7 +138,8 @@ class Enemy(Image):
             im_pass (string): 読み込む画像のパス
             speed (list, optional): [x方向の速度, y方向の速度]. Defaults to [1, 1].
         """
-        super().__init__(im_pass)
+        n = random.randint(0,2)
+        super().__init__(im_pass[n])
         x = random.randint(0, WINDOW_SIZE[0]-400)
         y = 100
         self.pos = [x, y]
@@ -153,6 +153,8 @@ class Enemy(Image):
 
     def update(self):
         self.rect.move_ip(self.speed)
+        if self.rect.y > 1000:
+            self.kill()
 
 
 class BackGroundImage(Image):
@@ -173,7 +175,6 @@ class BackGroundImage(Image):
         self.screen.blit(self.image, [0, self.BGI_Y -WINDOW_SIZE[1]])
         self.screen.blit(self.image, [0, self.BGI_Y])
     
-               
 class Life(Image):
     def __init__(self, im_pass, pos, life=LIFE_POINT):
         """こうかとんのライフのクラス
@@ -221,19 +222,8 @@ class Bomb(Image):
         
     def update(self):
         self.rect.move_ip(self.speed)
-        """
-        for i in range(2):
-            # i == 0 のとき x 軸の計算
-            # i == 1 のとき y 軸の計算
-            #壁にぶつかったら反転
-            if i == 0:
-                tmp = 400
-            else:
-                tmp = 0
-            if 0 >= self.rect[i] or self.rect[i] + self.rect[i+2] >= WINDOW_SIZE[i]-tmp:
-                self.speed[i] *= -1
-        """
-        
+        if self.rect.y > 1000:
+            self.kill()
             
 class Sound:
     def __init__(self, sd_name) -> None:
@@ -346,9 +336,11 @@ def main():
     for i in range(BOMB_NUM):
         all_sprites.add(bomb[i])
         bomb_sprites.add(bomb[i])
-    for i in range(ENEMY_NUM):
-        all_sprites.add(enemy[i])
-        enemy_sprites.add(enemy[i])
+    
+    #敵を追加するイベントを作成
+    EnemyEvent = pg.USEREVENT + 1
+    #3秒ごとに行うようにタイマーをセット
+    pg.time.set_timer(EnemyEvent, 3000)
     
     crash_time = time.time()
     
@@ -363,7 +355,7 @@ def main():
         life.blit()
         sb.blit()
         
-        #キーの入力時の処理
+        #イベント発生時の処理
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 pg.quit()
@@ -378,12 +370,18 @@ def main():
                     bgm.stop_sound()
                     main()
                 print(f"push:{pg.key.name(event.key)}")  
-   
+
             if event.type  ==shot_event:
                 tmp = Bullet(im_pass="nc138278.png", pos=koukaton.rect.center, speed = 2)
                 all_sprites.add(tmp)
                 bullet_sprites.add(tmp)
-        
+
+            if event.type == EnemyEvent:
+                #敵の追加
+                all_sprites.add(
+                    Enemy(im_pass=["Green.png", "Pink.png", "Purple.png"], speed=[0, 1]))
+                enemy_sprites.add(
+                    Enemy(im_pass=["Green.png", "Pink.png", "Purple.png"], speed=[0, 1]))
         
         #爆弾の衝突
         bomb_collided = pg.sprite.spritecollide(koukaton, bomb_sprites, True)
@@ -403,7 +401,6 @@ def main():
         if bullet_collided:
             #スコア計算の処理を追加
             pass
-            
                 
         all_sprites.update()
         pg.display.update()
