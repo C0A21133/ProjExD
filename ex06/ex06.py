@@ -224,7 +224,7 @@ class Bomb(Image):
 
         Args:
             im_pass (string): 読み込む画像のパス
-            speed (list, optional): [x方向の速度, y方向の速度]. Defaults to [1, 1].
+            speed (list, optional): [x方向の速度, y方向の速度]
         """
         super().__init__(im_pass)
         x = random.randint(0, WINDOW_SIZE[0]-400)
