@@ -13,6 +13,9 @@ INVINCIBLE_TIME = 1 #無敵時間(sec)
 BOMB_NUM = 3 #爆弾の初期の数
 HIT_STOP = 0.2 #ヒットストップの設定
 F_P_SIZE   = 60     # 得点用フォントサイズ
+SCROLL_SPEED = 0.5 #スクロールのスピード
+ENEMY_SPAWNING_TIME = 2000 #敵のスポーン時間
+KOUKATON_SPEED = 3
 
 class Screen(pg.sprite.Sprite):
     def __init__(self) -> None:
@@ -39,7 +42,7 @@ class ScoreBoard(Screen):
         self.screen.blit(text, [1010, 10])
         text = self.font.render("TIME : " + str((datetime.now()-st).seconds), True, (63,255,63))
         self.screen.blit(text, [1010, 100])
-
+#担当 佐野 ここまで
 
 class Image(Screen):
     def __init__(self, im_pass) -> None:
@@ -57,11 +60,11 @@ class Image(Screen):
 class Koukaton(Image):   
     key_dic = {
         "left":pg.K_LEFT, "right":pg.K_RIGHT, "up":pg.K_UP, 
-        "down":pg.K_DOWN, "dash":pg.K_LSHIFT, "attack":pg.K_LCTRL,
+        "down":pg.K_DOWN, "slow":pg.K_LSHIFT, "attack":pg.K_LCTRL,
         "exit":pg.K_ESCAPE, "reset":pg.K_F1
         } #キー の設定
     
-    def __init__(self, im_pass, pos, speed=1) -> None:
+    def __init__(self, im_pass, pos, speed) -> None:
         """こんかとんのクラス
 
         Args:
@@ -95,10 +98,10 @@ class Koukaton(Image):
         if pressed[Koukaton.key_dic["down"]]:
             self.rect.move_ip(0, self.speed)
             
-        if pressed[Koukaton.key_dic["dash"]]:
+        if pressed[Koukaton.key_dic["slow"]]:
             self.speed = 2
-        elif pressed[Koukaton.key_dic["dash"]] == False:
-            self.speed = 1
+        elif pressed[Koukaton.key_dic["slow"]] == False:
+            self.speed = KOUKATON_SPEED
         
         if pressed[Koukaton.key_dic["attack"]]:
             self.attack_mode = True     
@@ -128,7 +131,7 @@ class Koukaton(Image):
         self.image = pg.image.load(ip)
         self.image = pg.transform.rotozoom(self.image, 0, 2.0)
             
-
+#担当 山下
 class Bullet(Image):
     def __init__(self, im_pass, pos, speed) -> None:
         super().__init__(im_pass)
@@ -139,9 +142,9 @@ class Bullet(Image):
         self.rect.center = self.pos
         
     def update(self):
-        self.rect.move_ip(0, -1)
-        
+        self.rect.move_ip(0, -1)        
 
+# 担当 原田慶虎  
 class Enemy(Image):
     def __init__(self, im_pass, speed=[0, 1]) -> None:
         """敵のクラス
@@ -167,6 +170,7 @@ class Enemy(Image):
         self.rect.move_ip(self.speed)
         if self.rect.y > 1000:
             self.kill()
+#担当 原田慶虎 ここまで
 
 
 class BackGroundImage(Image):
@@ -183,7 +187,7 @@ class BackGroundImage(Image):
         pg.display.set_caption(self.title)
         
     def blit(self):
-        self.BGI_Y = (self.BGI_Y + 0.5)%WINDOW_SIZE[1]
+        self.BGI_Y = (self.BGI_Y + SCROLL_SPEED)%WINDOW_SIZE[1]
         self.screen.blit(self.image, [0, self.BGI_Y -WINDOW_SIZE[1]])
         self.screen.blit(self.image, [0, self.BGI_Y])
     
@@ -306,6 +310,7 @@ def collision_object(ko, lf, se, obj=None):
     if lf.life == 0:
         gameover()
             
+
 def main():
     global crash_time, st
     os.chdir(os.path.dirname(__file__))
@@ -323,19 +328,17 @@ def main():
     burn_sound = SoundEffect(sd_name="nc224596.wav")
     
     #背景の設定
-    scr = BackGroundImage(im_pass="space.jpg" ,title="戦え、こうかとん")
+    scr = BackGroundImage(im_pass="space.jpg" ,title="飛べ、こうかとん")
     
     #スコアボードの設定
     sb = ScoreBoard()
     
     #こうかとん の設定
-    koukaton = Koukaton(im_pass="../fig/0.png", pos=(500, 800))
+    koukaton = Koukaton(im_pass="../fig/0.png", pos=(500, 800), speed=KOUKATON_SPEED)
     
     #こうかとん のライフ
     life = Life(im_pass="nc237709.png", pos=(200 ,100))
     
-    #敵キャラの設定
-    enemy = [Enemy(im_pass="nc223460.png", speed=[0, 1]) for i in range(ENEMY_NUM)]
     
     #爆弾の設定
     bomb = [Bomb(im_pass="bakudan.png", speed=[0, 2]) for i in range(BOMB_NUM)]
@@ -343,28 +346,32 @@ def main():
     all_sprites = pg.sprite.Group() #画像の処理用
     bomb_sprites = pg.sprite.Group() #爆弾衝突判定用
     enemy_sprites = pg.sprite.Group() #敵キャラ衝突判定用
-    bullet_sprites = pg.sprite.Group() #弾丸 衝突判定用
+    bullet_sprites = pg.sprite.Group() #弾丸 衝突判定用 担当 山下
     
     all_sprites.add(koukaton)
     for i in range(BOMB_NUM):
         all_sprites.add(bomb[i])
         bomb_sprites.add(bomb[i])
     
-    #敵を追加するイベントを作成
-    EnemyEvent = pg.USEREVENT + 1
-    #3秒ごとに行うようにタイマーをセット
-    pg.time.set_timer(EnemyEvent, 3000)
-    
     crash_time = time.time()
+
+    #担当 山下
+    #弾の設定
+    shot_event = pg.USEREVENT + 2
+    pg.time.set_timer(shot_event, 300)
 
     #スコアについて加筆:佐野
     score = ScoreBoard()
     sb = ScoreBoard() 
     st = datetime.now()
     
-    #弾の設定
-    shot_event = pg.USEREVENT + 1
-    pg.time.set_timer(shot_event, 300)
+    #担当 原田
+    #敵を追加するイベントを作成:
+    EnemyEvent = pg.USEREVENT + 1
+    #ENEMY_SPAWNING_TIMEごとに行うようにタイマーをセット
+    pg.time.set_timer(EnemyEvent, ENEMY_SPAWNING_TIME)
+    
+    
     
     while True:
         #画像の表示と更新
@@ -393,17 +400,18 @@ def main():
                     main()
                 print(f"push:{pg.key.name(event.key)}")  
 
+            #担当 山下
             if event.type  ==shot_event:
                 tmp = Bullet(im_pass="nc138278.png", pos=koukaton.rect.center, speed = 2)
                 all_sprites.add(tmp)
                 bullet_sprites.add(tmp)
 
+            #担当 原田
             if event.type == EnemyEvent:
-                #敵の追加
-                all_sprites.add(
-                    Enemy(im_pass=["Green.png", "Pink.png", "Purple.png"], speed=[0, 1]))
-                enemy_sprites.add(
-                    Enemy(im_pass=["Green.png", "Pink.png", "Purple.png"], speed=[0, 1]))
+                #敵の追加 
+                tmp = Enemy(im_pass=["Green.png", "Pink.png", "Purple.png"], speed=[0, 1])
+                all_sprites.add(tmp)
+                enemy_sprites.add(tmp)
         
         #爆弾の衝突
         bomb_collided = pg.sprite.spritecollide(koukaton, bomb_sprites, True)
@@ -418,12 +426,11 @@ def main():
         if enemy_collided:
             collision_object(ko=koukaton, lf=life, se=se, obj="enemy")
         
-        #弾丸が敵キャラと衝突
+        #弾丸が敵キャラと衝突 担当 山下
         bullet_collided = pg.sprite.groupcollide(bullet_sprites, enemy_sprites, True, True)
         if bullet_collided:
-            #スコア計算の処理を追加
+            #スコア計算の処理を追加 担当 佐野
             score.cal_score(10000)
-            pass
                 
         all_sprites.update()
         pg.display.update()
