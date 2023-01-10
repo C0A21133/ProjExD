@@ -4,6 +4,7 @@ import pygame as pg
 import random
 import sys
 import time
+from datetime import datetime
 
 
 WINDOW_SIZE = (1400, 900) #ウインドウサイズ
@@ -12,6 +13,7 @@ INVINCIBLE_TIME = 1 #無敵時間(sec)
 BOMB_NUM = 3 #爆弾の初期の数
 ENEMY_NUM = 5 #敵キャラの数
 HIT_STOP = 0.2 #ヒットストップの設定
+F_P_SIZE   = 60     # 得点用フォントサイズ
 
 class Screen(pg.sprite.Sprite):
     def __init__(self) -> None:
@@ -19,13 +21,25 @@ class Screen(pg.sprite.Sprite):
         self.screen = pg.display.set_mode(WINDOW_SIZE)
 
 
+#スコア計算について加筆:佐野
 class ScoreBoard(Screen):
+    #スコア画面についてのクラス
     def __init__(self) -> None:
         super().__init__()
-        
+        self.font  = pg.font.SysFont("hgep006", F_P_SIZE)
+        self.point = 0
+
+    def cal_score(self, point):
+        self.point += point
 
     def blit(self):
-        self.scoreboard = pg.draw.rect(self.screen, (255,255,255), (1000, 0, WINDOW_SIZE[0], WINDOW_SIZE[1]))
+        self.scoreboard = pg.draw.rect(self.screen, (100, 100, 100), (1000, 0, WINDOW_SIZE[0], WINDOW_SIZE[1]))
+
+    def draw(self):
+        text = self.font.render("SCORE : " + "{:04d}".format(self.point), True, (63,255,63))
+        self.screen.blit(text, [1010, 10])
+        text = self.font.render("TIME : " + str((datetime.now()-st).seconds), True, (63,255,63))
+        self.screen.blit(text, [1010, 100])
 
 
 class Image(Screen):
@@ -124,12 +138,10 @@ class Bullet(Image):
         self.image = pg.transform.rotozoom(self.image, 0, 0.1)
         self.rect = self.image.get_rect()
         self.rect.center = self.pos
-    
         
     def update(self):
         self.rect.move_ip(0, -1)
         
-
 
 class Enemy(Image):
     def __init__(self, im_pass, speed=[0, 1]) -> None:
@@ -169,7 +181,7 @@ class BackGroundImage(Image):
         pg.display.set_caption(self.title)
         
     def blit(self):
-        self.BGI_Y = (self.BGI_Y + 10)%WINDOW_SIZE[1]
+        self.BGI_Y = (self.BGI_Y + 0.5)%WINDOW_SIZE[1]
         self.screen.blit(self.image, [0, self.BGI_Y -WINDOW_SIZE[1]])
         self.screen.blit(self.image, [0, self.BGI_Y])
     
@@ -267,8 +279,7 @@ class SoundEffect(Sound):
         
     def start_sound(self):
         self.music.play(0)
-        
-        
+          
 #ゲームオーバー時の処理
 def gameover():
     pg.quit()
@@ -293,23 +304,25 @@ def collision_object(ko, lf, se, obj=None):
     #アタックモードで衝突したのが敵ならその後の処理はしない
     if ko.attack_mode and obj == "enemy":
         return
+
     if lf.life != 0:    
         time.sleep(HIT_STOP)
         crash_time = time.time()#衝突時の時間を保存する
         lf.life -= 1
         num = random.randint(0, 9)
         ko.change_image(f"../fig/{num}.png")
+
     #ライフが0 なら gameover()を実行
     if lf.life == 0:
         gameover()
             
 def main():
-    global crash_time
+    global crash_time, st
     os.chdir(os.path.dirname(__file__))
     print("pass:"+os.getcwd())
     pg.init()
     scr = Screen()
-    clock = pg.time.Clock()    
+    clock = pg.time.Clock()   
     
     #BGMの設定
     bgm = BGM("こんとどぅふぇ素材No.0129-Last-Horizon.wav")
@@ -320,7 +333,7 @@ def main():
     burn_sound = SoundEffect(sd_name="nc224596.wav")
     
     #背景の設定
-    scr = BackGroundImage(im_pass="pg_bg.jpg" ,title="戦え、こうかとん")
+    scr = BackGroundImage(im_pass="space.jpg" ,title="戦え、こうかとん")
     
     #スコアボードの設定
     sb = ScoreBoard()
@@ -351,6 +364,11 @@ def main():
         enemy_sprites.add(enemy[i])
     
     crash_time = time.time()
+
+    #スコアについて加筆:佐野
+    score = ScoreBoard()
+    sb = ScoreBoard() 
+    st = datetime.now()
     
     #弾の設定
     shot_event = pg.USEREVENT + 1
@@ -362,6 +380,10 @@ def main():
         all_sprites.draw(scr.screen)
         life.blit()
         sb.blit()
+
+        #スコアについて加筆:佐野
+        score.cal_score(1)
+        score.draw()
         
         #キーの入力時の処理
         for event in pg.event.get():
@@ -402,6 +424,7 @@ def main():
         bullet_collided = pg.sprite.groupcollide(bullet_sprites, enemy_sprites, True, True)
         if bullet_collided:
             #スコア計算の処理を追加
+            score.cal_score(10000)
             pass
             
                 
