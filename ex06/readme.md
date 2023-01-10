@@ -30,7 +30,11 @@
 - スクロール機能の追加
 - スコアの表示する部分を追加
 - エネルギー弾の追加 山下
+- スコアの表示 佐野
+- 経過時間の表示 佐野
 ### メモ
+- 背景画像 (space.jpg)
+- 
 - 弾の画像 (nc138278) 
 - https://commons.nicovideo.jp/material/nc138278
 - ハートの画像 (nc237709.png)
@@ -39,7 +43,8 @@
 - https://www.irasutoya.com/2014/04/blog-post_4.html
 - 炎の画像 (nc289332.png)
 - https://commons.nicovideo.jp/material/nc289332
-- 敵の画像 (nc223460.png)
+- 敵の画像 (Green.png, Pink.png, Purple.png)
+- 
 - https://commons.nicovideo.jp/material/nc223460
 - 効果音 (nc172283.wav)
 - https://commons.nicovideo.jp/material/nc172283
