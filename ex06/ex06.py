@@ -6,17 +6,18 @@ import sys
 import time
 
 
-WINDOW_SIZE = (1400, 1000) #ウインドウサイズ
+WINDOW_SIZE = (1400, 900) #ウインドウサイズ
 LIFE_POINT = 3 #ライフ
 INVINCIBLE_TIME = 1 #無敵時間(sec)
 BOMB_NUM = 3 #爆弾の初期の数
-ENEMY_NUM = 2 #敵キャラの数
+ENEMY_NUM = 5 #敵キャラの数
 HIT_STOP = 0.2 #ヒットストップの設定
 
 class Screen(pg.sprite.Sprite):
     def __init__(self) -> None:
         super().__init__()
         self.screen = pg.display.set_mode(WINDOW_SIZE)
+
 
 class ScoreBoard(Screen):
     def __init__(self) -> None:
@@ -25,6 +26,7 @@ class ScoreBoard(Screen):
 
     def blit(self):
         self.scoreboard = pg.draw.rect(self.screen, (255,255,255), (1000, 0, WINDOW_SIZE[0], WINDOW_SIZE[1]))
+
 
 class Image(Screen):
     def __init__(self, im_pass) -> None:
@@ -104,10 +106,6 @@ class Koukaton(Image):
                 print(before_koukaton_rect)
                 self.rect = before_koukaton_rect
         
-        
-        
-        
-        
     def change_image(self, ip):
         """画像を変更する
 
@@ -119,9 +117,10 @@ class Koukaton(Image):
             
 
 class Bullet(Image):
-    def __init__(self, im_pass, pos) -> None:
+    def __init__(self, im_pass, pos, speed) -> None:
         super().__init__(im_pass)
         self.pos = pos
+        self.speed = speed
         self.image = pg.transform.rotozoom(self.image, 0, 0.1)
         self.rect = self.image.get_rect()
         self.rect.center = self.pos
@@ -154,17 +153,7 @@ class Enemy(Image):
 
     def update(self):
         self.rect.move_ip(self.speed)
-"""
-            # i == 0 のとき x 軸の計算
-            # i == 1 のとき y 軸の計算
-            #壁にぶつかったら反転
-            if i == 0:
-                tmp = 400
-            else:
-                tmp = 0
-            if 0 >= self.rect[i] or self.rect[i] + self.rect[i+2] >= WINDOW_SIZE[i]-tmp:
-                self.speed[i] *= -1
-"""
+
 
 class BackGroundImage(Image):
     BGI_Y = 0
@@ -180,13 +169,11 @@ class BackGroundImage(Image):
         pg.display.set_caption(self.title)
         
     def blit(self):
-        self.BGI_Y = (self.BGI_Y+1)%WINDOW_SIZE[1]
+        self.BGI_Y = (self.BGI_Y + 10)%WINDOW_SIZE[1]
         self.screen.blit(self.image, [0, self.BGI_Y -WINDOW_SIZE[1]])
         self.screen.blit(self.image, [0, self.BGI_Y])
     
-    
-        
-        
+               
 class Life(Image):
     def __init__(self, im_pass, pos, life=LIFE_POINT):
         """こうかとんのライフのクラス
@@ -281,7 +268,6 @@ class SoundEffect(Sound):
     def start_sound(self):
         self.music.play(0)
         
-    
         
 #ゲームオーバー時の処理
 def gameover():
@@ -317,8 +303,6 @@ def collision_object(ko, lf, se, obj=None):
     if lf.life == 0:
         gameover()
             
-    
-
 def main():
     global crash_time
     os.chdir(os.path.dirname(__file__))
@@ -344,9 +328,6 @@ def main():
     #こうかとん の設定
     koukaton = Koukaton(im_pass="../fig/0.png", pos=(500, 800))
     
-    #エネルギー弾の設定
-    bullet = Bullet(im_pass="nc138278.png", pos=koukaton.pos)
-    
     #こうかとん のライフ
     life = Life(im_pass="nc237709.png", pos=(200 ,100))
     
@@ -359,8 +340,9 @@ def main():
     all_sprites = pg.sprite.Group() #画像の処理用
     bomb_sprites = pg.sprite.Group() #爆弾衝突判定用
     enemy_sprites = pg.sprite.Group() #敵キャラ衝突判定用
+    bullet_sprites = pg.sprite.Group() #弾丸 衝突判定用
     
-    all_sprites.add(koukaton, bullet)
+    all_sprites.add(koukaton)
     for i in range(BOMB_NUM):
         all_sprites.add(bomb[i])
         bomb_sprites.add(bomb[i])
@@ -370,6 +352,10 @@ def main():
     
     crash_time = time.time()
     
+    #弾の設定
+    shot_event = pg.USEREVENT + 1
+    pg.time.set_timer(shot_event, 300)
+    
     while True:
         #画像の表示と更新
         scr.blit()
@@ -377,6 +363,26 @@ def main():
         life.blit()
         sb.blit()
         
+        #キーの入力時の処理
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                pg.quit()
+                sys.exit()
+                
+            if event.type == pg.KEYDOWN:
+                if event.key == Koukaton.key_dic["exit"]:
+                    pg.quit()
+                    sys.exit()
+                if event.key == Koukaton.key_dic["reset"]:
+                    crash_time = time.time()
+                    bgm.stop_sound()
+                    main()
+                print(f"push:{pg.key.name(event.key)}")  
+   
+            if event.type  ==shot_event:
+                tmp = Bullet(im_pass="nc138278.png", pos=koukaton.rect.center, speed = 2)
+                all_sprites.add(tmp)
+                bullet_sprites.add(tmp)
         
         
         #爆弾の衝突
@@ -392,23 +398,13 @@ def main():
         if enemy_collided:
             collision_object(ko=koukaton, lf=life, se=se, obj="enemy")
         
-        #キーの入力時の処理
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
-                pg.quit()
-                sys.exit()
+        #弾丸が敵キャラと衝突
+        bullet_collided = pg.sprite.groupcollide(bullet_sprites, enemy_sprites, True, True)
+        if bullet_collided:
+            #スコア計算の処理を追加
+            pass
+            
                 
-            if event.type == pg.KEYDOWN:
-                if event.key == Koukaton.key_dic["exit"]:
-                    pg.quit()
-                    sys.exit()
-                if event.key == Koukaton.key_dic["reset"]:
-                    crash_time = time.time()
-                    bgm.stop_sound()
-                    main()  
-                
-                print(f"push:{pg.key.name(event.key)}")  
-
         all_sprites.update()
         pg.display.update()
         clock.tick(1000)
