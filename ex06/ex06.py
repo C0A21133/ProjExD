@@ -142,7 +142,9 @@ class Bullet(Image):
         self.rect.center = self.pos
         
     def update(self):
-        self.rect.move_ip(0, -1)        
+        self.rect.move_ip(0, -1)   
+        if self.rect.y > 1000:
+            self.kill()
 
 # 担当 原田慶虎  
 class Enemy(Image):
