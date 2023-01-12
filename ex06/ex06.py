@@ -276,7 +276,7 @@ class SoundEffect(Sound):
     def start_sound(self):
         self.music.play(0)
           
-#ゲームオーバー時の処理
+#ゲームオーバー時の処理 担当：轟
 def gameover():
     pg.quit()
     sys.exit()
