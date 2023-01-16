@@ -1,7 +1,7 @@
 # 第6回
 ## 飛べ！こうかとん (ex06/ex06.py)
 ### ゲーム概要
-- ex05/fight_koukatonを実行すると，1400x900のウィンドウが描写され、爆弾から矢印キーでこうかとんを動かして、よけるゲーム
+- ex06/ex06を実行すると，1400x900のウィンドウが描写され、爆弾と敵とその弾丸から矢印キーでこうかとんを動かして、よけるゲーム
 - 爆弾の初期位置はランダム
 ### 操作方法
 - 矢印キーでこうかとんを上下左右に移動する
@@ -36,8 +36,8 @@
 ### メモ
 - 背景画像 (space.jpg)
 - http://diamondshp.starfree.jp/material/nature.html#st
-- 弾の画像 (nc138278) 
-- https://commons.nicovideo.jp/material/nc138278
+- 弾の画像 (nc95743.png,nc95744.png ) 
+- https://commons.nicovideo.jp/material/nc95743, https://commons.nicovideo.jp/material/nc95744
 - ハートの画像 (nc237709.png)
 - https://commons.nicovideo.jp/material/nc237709
 - 爆弾の画像 (bakudan.png)

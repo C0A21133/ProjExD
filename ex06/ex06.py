@@ -73,7 +73,7 @@ class Item(Image):
     def decrease(self, key): 
         self.item_list[key] -= 1
         
-class BUllet_Bomb(Item):
+class Missile(Item):
     def __init__(self, im_pass, pos, speed) -> None:
         super().__init__(im_pass)
         self.pos = pos
@@ -104,7 +104,7 @@ class Koukaton(Image):
         super().__init__(im_pass)
         self.pos = pos
         self.speed = speed
-        self.image = pg.transform.rotozoom(self.image, 0, 2.0)
+        self.image = pg.transform.rotozoom(self.image, 0, 1.0)
         self.rect = self.image.get_rect()
         self.rect.center = self.pos
         self.effct_image = pg.image.load("Images/nc289332.png")
@@ -159,7 +159,7 @@ class Koukaton(Image):
             ip (string): 画像のパス
         """
         self.image = pg.image.load(ip)
-        self.image = pg.transform.rotozoom(self.image, 0, 2.0)
+        self.image = pg.transform.rotozoom(self.image, 0, 1.0)
             
 #担当 山下
 class Bullet(Image):
@@ -167,12 +167,12 @@ class Bullet(Image):
         super().__init__(im_pass)
         self.pos = pos
         self.speed = speed
-        self.image = pg.transform.rotozoom(self.image, 0, 0.1)
+        self.image = pg.transform.rotozoom(self.image, 0, 0.05)
         self.rect = self.image.get_rect()
         self.rect.center = self.pos
         
     def update(self):
-        self.rect.move_ip(0, -1)   
+        self.rect.move_ip(0, -self.speed)   
         if self.rect.y > 1000:
             self.kill()
 
@@ -191,7 +191,7 @@ class Enemy(Image):
         y = 100
         self.pos = [x, y]
         self.speed = speed
-        self.image = pg.transform.rotozoom(self.image, 0, 0.3)
+        self.image = pg.transform.rotozoom(self.image, 0, 0.1)
         self.rect = self.image.get_rect()
         self.rect.center = self.pos
         
@@ -314,7 +314,7 @@ def gameover():
     sys.exit()
 
 #衝突時の処理
-def collision_object(ko, lf, se, obj=None):
+def collision_object(ko, lf, se):
     """
     爆弾とこうかとんの衝突時の処理
 
@@ -374,12 +374,13 @@ def main():
     #爆弾の設定
     bomb = [Bomb(im_pass="bakudan.png", speed=[0, 2]) for i in range(BOMB_NUM)]
     
-    
+
     
     all_sprites = pg.sprite.Group() #画像の処理用
     bomb_sprites = pg.sprite.Group() #爆弾衝突判定用
     enemy_sprites = pg.sprite.Group() #敵キャラ衝突判定用
-    bullet_sprites = pg.sprite.Group() #弾丸 衝突判定用 担当 山下
+    my_bullet_sprites = pg.sprite.Group() #弾丸 衝突判定用 担当 山下
+    enemy_bullet_sprites = pg.sprite.Group() #弾丸 衝突判定用 山下
     
     all_sprites.add(koukaton)
     for i in range(BOMB_NUM):
@@ -390,8 +391,10 @@ def main():
 
     #担当 山下
     #弾の設定
-    shot_event = pg.USEREVENT + 2
-    pg.time.set_timer(shot_event, 300)
+    my_shot_event = pg.USEREVENT + 2
+    pg.time.set_timer(my_shot_event, 300)
+    enemy_shot_event = pg.USEREVENT + 3
+    pg.time.set_timer(enemy_shot_event, 600)
     
 
     #スコアについて加筆:佐野
@@ -434,13 +437,18 @@ def main():
                     main()
                 print(f"push:{pg.key.name(event.key)}")  
 
-            #担当 山下
-            if event.type  ==shot_event:
+            #射撃関連 担当 山下
+            if event.type  == my_shot_event:
                 shot_sound.start_sound()
-                tmp = Bullet(im_pass="nc138278.png", pos=koukaton.rect.center, speed = 2)
+                tmp = Bullet(im_pass="nc95743.png", pos=koukaton.rect.center, speed = 4)
                 all_sprites.add(tmp)
-                bullet_sprites.add(tmp)
-
+                my_bullet_sprites.add(tmp)
+            if event.type == enemy_shot_event:
+                for i in enemy_sprites:
+                    tmp = Bullet(im_pass="nc95744.png", pos=i.rect.center, speed=-2)
+                    all_sprites.add(tmp)
+                    enemy_bullet_sprites.add(tmp)
+                    
             #担当 原田
             if event.type == EnemyEvent:
                 #敵の追加 
@@ -448,20 +456,23 @@ def main():
                 all_sprites.add(tmp)
                 enemy_sprites.add(tmp)
         
-        #爆弾の衝突
+        #爆弾の衝突 
         bomb_collided = pg.sprite.spritecollide(koukaton, bomb_sprites, True)
         if bomb_collided:
             collision_object(ko=koukaton, lf=life, se=hit_bomb)
         #敵キャラとの衝突
         enemy_collided = pg.sprite.spritecollide(koukaton, enemy_sprites, True)
-        
-        se = hit_enemy
         if enemy_collided:
-            collision_object(ko=koukaton, lf=life, se=se, obj="enemy")
+            collision_object(ko=koukaton, lf=life, se=hit_enemy)
+        
+        #弾丸が自分に衝突 山下
+        enemy_bullet_collided = pg.sprite.spritecollide(koukaton ,enemy_bullet_sprites, True)
+        if enemy_bullet_collided:
+            collision_object(ko=koukaton, se=hit_enemy, lf=life)
         
         #弾丸が敵キャラと衝突 担当 山下
-        bullet_collided = pg.sprite.groupcollide(bullet_sprites, enemy_sprites, True, True)
-        if bullet_collided:
+        my_bullet_collided = pg.sprite.groupcollide(my_bullet_sprites, enemy_sprites, True, True)
+        if my_bullet_collided:
             #スコア計算の処理を追加 担当 佐野
             score.cal_score(10000)
                 
