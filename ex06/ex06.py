@@ -14,7 +14,7 @@ BOMB_NUM = 3 #爆弾の初期の数
 HIT_STOP = 0.2 #ヒットストップの設定
 F_P_SIZE   = 60     # 得点用フォントサイズ
 SCROLL_SPEED = 0.5 #スクロールのスピード
-ENEMY_SPAWNING_TIME = 2000 #敵のスポーン時間
+ENEMY_SPAWNING_TIME = 1000 #敵のスポーン時間
 KOUKATON_SPEED = 3
 
 class Screen(pg.sprite.Sprite):
@@ -30,12 +30,17 @@ class ScoreBoard(Screen):
         super().__init__()
         self.font  = pg.font.SysFont("hgep006", F_P_SIZE)
         self.point = 0
-
+        self.manual = Image(im_pass="操作ガイド(山下).png") #山下 ここから
+        self.manual.image = pg.transform.rotozoom(self.manual.image, 0, 0.4)
+        self.manual.rect = self.manual.image.get_rect()
+        self.manual.rect.center = (1200,700) #ここまで
+        
     def cal_score(self, point):
         self.point += point
 
     def blit(self):
         self.scoreboard = pg.draw.rect(self.screen, (100, 100, 100), (1000, 0, WINDOW_SIZE[0], WINDOW_SIZE[1]))
+        self.screen.blit(self.manual.image, self.manual.rect) #山下
 
     def draw(self):
         text = self.font.render("SCORE : " + "{:04d}".format(self.point), True, (63,255,63))
@@ -53,9 +58,34 @@ class Image(Screen):
         """
         super().__init__()
         self.im_pass = im_pass
-        self.image = pg.image.load(im_pass)
+        self.image = pg.image.load(f"Images/{im_pass}")
         self.rect = self.image.get_rect()
         
+
+class Item(Image):
+    def __init__(self, im_pass) -> None:
+        super().__init__(im_pass)
+        self.item_list = {"Bomb": 3}
+
+    def add_item(self, key):
+        self.item_list[key] += 1
+    
+    def decrease(self, key): 
+        self.item_list[key] -= 1
+        
+class BUllet_Bomb(Item):
+    def __init__(self, im_pass, pos, speed) -> None:
+        super().__init__(im_pass)
+        self.pos = pos
+        self.speed = speed
+        self.image = pg.transform.rotozoom(self.image, 0, 0.1)
+        self.rect = self.image.get_rect()
+        self.rect.center = self.pos
+        
+    def update(self):
+        self.rect.move_ip(0, -1)   
+        if self.rect.y > 1000:
+            self.kill()
             
 class Koukaton(Image):   
     key_dic = {
@@ -77,10 +107,10 @@ class Koukaton(Image):
         self.image = pg.transform.rotozoom(self.image, 0, 2.0)
         self.rect = self.image.get_rect()
         self.rect.center = self.pos
-        self.effct_image = pg.image.load("nc289332.png")
+        self.effct_image = pg.image.load("Images/nc289332.png")
         self.effect_image = pg.transform.rotozoom(self.effct_image, 0, 0.6)
         self.effect_rect = self.effect_image.get_rect()
-        self.attack_mode = False
+        
         
     def blit(self):
         self.screen.blit(self.image, self.rect)
@@ -104,11 +134,11 @@ class Koukaton(Image):
             self.speed = KOUKATON_SPEED
         
         if pressed[Koukaton.key_dic["attack"]]:
-            self.attack_mode = True     
+                
             self.effect_rect.center = self.rect.center
             self.screen.blit(self.effect_image, self.effect_rect)
         elif pressed[Koukaton.key_dic["attack"]] == False:
-            self.attack_mode = False
+            pass
         
         #こうかとん が画面外に出たとき、元の位置に戻す、
         for i in range(2):
@@ -249,10 +279,11 @@ class Sound:
 
         Args:
             sd_name (string): 読み込むサウンドのファイル名
+            volume (float): 音量
         """
         self.sd_name = sd_name
         pg.mixer.init(frequency = 44100)    # 初期設定
-        self.music = pg.mixer.Sound(self.sd_name)     # 音楽ファイルの読み込み
+        self.music = pg.mixer.Sound(f"Sound/{self.sd_name}")     # 音楽ファイルの読み込み
         
         
 class BGM(Sound):
@@ -267,11 +298,12 @@ class BGM(Sound):
         self.music.stop()
         
 class SoundEffect(Sound):
-    def __init__(self, sd_name) -> None:
+    def __init__(self, sd_name, volume) -> None:
         """効果音のクラス
         """
         super().__init__(sd_name)
-        self.music.set_volume(0.3)
+        self.volume = volume
+        self.music.set_volume(volume)
         
     def start_sound(self):
         self.music.play(0)
@@ -297,16 +329,13 @@ def collision_object(ko, lf, se, obj=None):
     if time_end - crash_time < INVINCIBLE_TIME:
         return
     se.start_sound()
-    #アタックモードで衝突したのが敵ならその後の処理はしない
-    if ko.attack_mode and obj == "enemy":
-        return
-
+    
     if lf.life != 0:    
         time.sleep(HIT_STOP)
         crash_time = time.time()#衝突時の時間を保存する
         lf.life -= 1
         num = random.randint(0, 9)
-        ko.change_image(f"../fig/{num}.png")
+        ko.change_image(f"Images/fig/{num}.png")
 
     #ライフが0 なら gameover()を実行
     if lf.life == 0:
@@ -325,9 +354,9 @@ def main():
     bgm = BGM("こんとどぅふぇ素材No.0129-Last-Horizon.wav")
     
     #効果音の設定
-    hit_enemy = SoundEffect(sd_name="nc172283.wav")
-    hit_bomb = SoundEffect(sd_name="nc84862.wav")
-    burn_sound = SoundEffect(sd_name="nc224596.wav")
+    hit_enemy = SoundEffect(sd_name="nc172283.wav", volume=0.3)
+    hit_bomb = SoundEffect(sd_name="nc84862.wav", volume=0.3)
+    shot_sound = SoundEffect(sd_name="nc85161.wav", volume=0.05) #山下
     
     #背景の設定
     scr = BackGroundImage(im_pass="space.jpg" ,title="飛べ、こうかとん")
@@ -336,7 +365,7 @@ def main():
     sb = ScoreBoard()
     
     #こうかとん の設定
-    koukaton = Koukaton(im_pass="../fig/0.png", pos=(500, 800), speed=KOUKATON_SPEED)
+    koukaton = Koukaton(im_pass="fig/0.png", pos=(500, 800), speed=KOUKATON_SPEED)
     
     #こうかとん のライフ
     life = Life(im_pass="nc237709.png", pos=(200 ,100))
@@ -344,6 +373,8 @@ def main():
     
     #爆弾の設定
     bomb = [Bomb(im_pass="bakudan.png", speed=[0, 2]) for i in range(BOMB_NUM)]
+    
+    
     
     all_sprites = pg.sprite.Group() #画像の処理用
     bomb_sprites = pg.sprite.Group() #爆弾衝突判定用
@@ -361,6 +392,7 @@ def main():
     #弾の設定
     shot_event = pg.USEREVENT + 2
     pg.time.set_timer(shot_event, 300)
+    
 
     #スコアについて加筆:佐野
     score = ScoreBoard()
@@ -404,6 +436,7 @@ def main():
 
             #担当 山下
             if event.type  ==shot_event:
+                shot_sound.start_sound()
                 tmp = Bullet(im_pass="nc138278.png", pos=koukaton.rect.center, speed = 2)
                 all_sprites.add(tmp)
                 bullet_sprites.add(tmp)
@@ -420,11 +453,9 @@ def main():
         if bomb_collided:
             collision_object(ko=koukaton, lf=life, se=hit_bomb)
         #敵キャラとの衝突
-        enemy_collided = pg.sprite.spritecollide(koukaton, enemy_sprites, koukaton.attack_mode)
-        if koukaton.attack_mode:
-            se = burn_sound
-        else:
-            se = hit_enemy
+        enemy_collided = pg.sprite.spritecollide(koukaton, enemy_sprites, True)
+        
+        se = hit_enemy
         if enemy_collided:
             collision_object(ko=koukaton, lf=life, se=se, obj="enemy")
         

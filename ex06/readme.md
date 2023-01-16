@@ -30,6 +30,7 @@
 - スクロール機能の追加
 - スコアの表示する部分を追加
 - エネルギー弾の追加 山下
+- 操作ガイドの作成 山下
 - スコアの表示 佐野
 - 経過時間の表示 佐野
 ### メモ
@@ -51,6 +52,9 @@
 - https://commons.nicovideo.jp/material/nc84862
 - 効果音 (nc224596.wav)
 - https://commons.nicovideo.jp/material/nc224596
+- 効果音 (nc85161.wav)
+- https://commons.nicovideo.jp/material/agreement/nc85161
+
 - BGM (こんとどぅふぇ素材No.0129-Last Horizon.wav)
 - https://conte-de-fees.com/bgm/2199.html
 - 音楽：こんとどぅふぇ
