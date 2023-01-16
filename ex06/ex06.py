@@ -1,4 +1,5 @@
 import copy
+import math
 import os
 import pygame as pg
 import random
@@ -16,6 +17,7 @@ F_P_SIZE   = 60     # 得点用フォントサイズ
 SCROLL_SPEED = 0.5 #スクロールのスピード
 ENEMY_SPAWNING_TIME = 1000 #敵のスポーン時間
 KOUKATON_SPEED = 3
+ENEMY_BULLET_RADIAN = 90  #角度で敵が弾を撃つ
 
 class Screen(pg.sprite.Sprite):
     def __init__(self) -> None:
@@ -61,7 +63,7 @@ class Image(Screen):
         self.image = pg.image.load(f"Images/{im_pass}")
         self.rect = self.image.get_rect()
         
-
+"""
 class Item(Image):
     def __init__(self, im_pass) -> None:
         super().__init__(im_pass)
@@ -86,7 +88,8 @@ class Missile(Item):
         self.rect.move_ip(0, -1)   
         if self.rect.y > 1000:
             self.kill()
-            
+"""
+
 class Koukaton(Image):   
     key_dic = {
         "left":pg.K_LEFT, "right":pg.K_RIGHT, "up":pg.K_UP, 
@@ -163,16 +166,18 @@ class Koukaton(Image):
             
 #担当 山下
 class Bullet(Image):
-    def __init__(self, im_pass, pos, speed) -> None:
+    def __init__(self, im_pass, pos, speed, rad) -> None:
         super().__init__(im_pass)
         self.pos = pos
         self.speed = speed
+        self.rad = rad
         self.image = pg.transform.rotozoom(self.image, 0, 0.05)
         self.rect = self.image.get_rect()
         self.rect.center = self.pos
         
     def update(self):
-        self.rect.move_ip(0, -self.speed)   
+        self.rect.move_ip(self.speed * math.cos(self.rad+math.radians(90)), self.speed)
+        print(self.speed * math.cos(self.rad+math.radians(90)))
         if self.rect.y > 1000:
             self.kill()
 
@@ -188,7 +193,7 @@ class Enemy(Image):
         n = random.randint(0,2)
         super().__init__(im_pass[n])
         x = random.randint(0, WINDOW_SIZE[0]-400)
-        y = 100
+        y = 0
         self.pos = [x, y]
         self.speed = speed
         self.image = pg.transform.rotozoom(self.image, 0, 0.1)
@@ -440,12 +445,13 @@ def main():
             #射撃関連 担当 山下
             if event.type  == my_shot_event:
                 shot_sound.start_sound()
-                tmp = Bullet(im_pass="nc95743.png", pos=koukaton.rect.center, speed = 4)
+                tmp = Bullet(im_pass="nc95743.png", pos=koukaton.rect.center, speed=-3, rad=0)
                 all_sprites.add(tmp)
                 my_bullet_sprites.add(tmp)
             if event.type == enemy_shot_event:
                 for i in enemy_sprites:
-                    tmp = Bullet(im_pass="nc95744.png", pos=i.rect.center, speed=-2)
+                    rad = random.randint(-ENEMY_BULLET_RADIAN/2, ENEMY_BULLET_RADIAN/2)
+                    tmp = Bullet(im_pass="nc95744.png", pos=i.rect.center, speed=2, rad=math.radians(rad))
                     all_sprites.add(tmp)
                     enemy_bullet_sprites.add(tmp)
                     
