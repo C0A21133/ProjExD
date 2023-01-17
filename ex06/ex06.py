@@ -17,7 +17,7 @@ F_P_SIZE   = 60     # 得点用フォントサイズ
 SCROLL_SPEED = 0.5 #スクロールのスピード
 ENEMY_SPAWNING_TIME = 1000 #敵のスポーン時間
 KOUKATON_SPEED = 3
-ENEMY_BULLET_RADIAN = 90  #角度で敵が弾を撃つ
+ENEMY_BULLET_RADIAN = 60  #角度で敵が弾を撃つ
 
 class Screen(pg.sprite.Sprite):
     def __init__(self) -> None:
@@ -176,9 +176,8 @@ class Bullet(Image):
         self.rect.center = self.pos
         
     def update(self):
-        self.rect.move_ip(self.speed * math.cos(self.rad+math.radians(90)), self.speed)
-        print(self.speed * math.cos(self.rad+math.radians(90)))
-        if self.rect.y > 1000:
+        self.rect.move_ip(self.speed * math.cos(self.rad+math.radians(90)), self.speed*math.sin(self.rad+math.radians(90)))
+        if self.rect.y > 1000 or self.rect.y < 0 or self.rect.x < 0 or self.rect.x > WINDOW_SIZE[0]:
             self.kill()
 
 # 担当 原田慶虎  
@@ -451,7 +450,7 @@ def main():
             if event.type == enemy_shot_event:
                 for i in enemy_sprites:
                     rad = random.randint(-ENEMY_BULLET_RADIAN/2, ENEMY_BULLET_RADIAN/2)
-                    tmp = Bullet(im_pass="nc95744.png", pos=i.rect.center, speed=2, rad=math.radians(rad))
+                    tmp = Bullet(im_pass="nc95744.png", pos=i.rect.center, speed=3, rad=math.radians(rad))
                     all_sprites.add(tmp)
                     enemy_bullet_sprites.add(tmp)
                     
