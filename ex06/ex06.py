@@ -11,11 +11,11 @@ from datetime import datetime
 WINDOW_SIZE = (1400, 900) #ウインドウサイズ
 LIFE_POINT = 3 #ライフ
 INVINCIBLE_TIME = 1 #無敵時間(sec)
-BOMB_NUM = 3 #爆弾の初期の数
 HIT_STOP = 0.2 #ヒットストップの設定
 F_P_SIZE   = 60     # 得点用フォントサイズ
 SCROLL_SPEED = 0.5 #スクロールのスピード
 ENEMY_SPAWNING_TIME = 1000 #敵のスポーン時間
+BOMB_SPAWNING_TIME = 3000 #爆弾のスポーン時間
 KOUKATON_SPEED = 3
 ENEMY_BULLET_RADIAN = 90  #角度で敵が弾を撃つ
 
@@ -181,7 +181,7 @@ class Bullet(Image):
         if self.rect.y > 1000:
             self.kill()
 
-# 担当 原田慶虎  
+#担当 原田慶虎  
 class Enemy(Image):
     def __init__(self, im_pass, speed=[0, 1]) -> None:
         """敵のクラス
@@ -312,7 +312,7 @@ class SoundEffect(Sound):
         
     def start_sound(self):
         self.music.play(0)
-          
+
 #ゲームオーバー時の処理 担当：轟
 def gameover():
     pg.quit()
@@ -375,12 +375,6 @@ def main():
     #こうかとん のライフ
     life = Life(im_pass="nc237709.png", pos=(200 ,100))
     
-    
-    #爆弾の設定
-    bomb = [Bomb(im_pass="bakudan.png", speed=[0, 2]) for i in range(BOMB_NUM)]
-    
-
-    
     all_sprites = pg.sprite.Group() #画像の処理用
     bomb_sprites = pg.sprite.Group() #爆弾衝突判定用
     enemy_sprites = pg.sprite.Group() #敵キャラ衝突判定用
@@ -388,9 +382,6 @@ def main():
     enemy_bullet_sprites = pg.sprite.Group() #弾丸 衝突判定用 山下
     
     all_sprites.add(koukaton)
-    for i in range(BOMB_NUM):
-        all_sprites.add(bomb[i])
-        bomb_sprites.add(bomb[i])
     
     crash_time = time.time()
 
@@ -413,6 +404,10 @@ def main():
     #ENEMY_SPAWNING_TIMEごとに行うようにタイマーをセット
     pg.time.set_timer(EnemyEvent, ENEMY_SPAWNING_TIME)
     
+    #爆弾を追加するイベントを作成
+    BombEvent = pg.USEREVENT + 4
+    #BOMB_SPAWNING_TIMEごとに行うようにタイマーをセット
+    pg.time.set_timer(BombEvent, BOMB_SPAWNING_TIME)
     
     
     while True:
@@ -461,6 +456,12 @@ def main():
                 tmp = Enemy(im_pass=["Green.png", "Pink.png", "Purple.png"], speed=[0, 1])
                 all_sprites.add(tmp)
                 enemy_sprites.add(tmp)
+
+            if event.type == BombEvent:
+                #爆弾の追加
+                tmp = Bomb(im_pass="bakudan.png", speed=[0, 2])
+                all_sprites.add(tmp)
+                bomb_sprites.add(tmp)
         
         #爆弾の衝突 
         bomb_collided = pg.sprite.spritecollide(koukaton, bomb_sprites, True)
