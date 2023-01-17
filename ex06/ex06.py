@@ -17,7 +17,7 @@ SCROLL_SPEED = 0.5 #スクロールのスピード
 ENEMY_SPAWNING_TIME = 1000 #敵のスポーン時間
 BOMB_SPAWNING_TIME = 3000 #爆弾のスポーン時間
 KOUKATON_SPEED = 3
-ENEMY_BULLET_RADIAN = 90  #角度で敵が弾を撃つ
+ENEMY_BULLET_RADIAN = 60  #角度で敵が弾を撃つ
 
 class Screen(pg.sprite.Sprite):
     def __init__(self) -> None:
@@ -32,6 +32,7 @@ class ScoreBoard(Screen):
         super().__init__()
         self.font  = pg.font.SysFont("hgep006", F_P_SIZE)
         self.point = 0
+        self.defeatnumber = 0
         self.manual = Image(im_pass="操作ガイド(山下).png") #山下 ここから
         self.manual.image = pg.transform.rotozoom(self.manual.image, 0, 0.4)
         self.manual.rect = self.manual.image.get_rect()
@@ -39,6 +40,12 @@ class ScoreBoard(Screen):
         
     def cal_score(self, point):
         self.point += point
+        
+        #スコアの設定
+    
+    def defeat_enemy(self, defeatnumber):
+        self.defeatnumber += defeatnumber
+        #撃破数の設定
 
     def blit(self):
         self.scoreboard = pg.draw.rect(self.screen, (100, 100, 100), (1000, 0, WINDOW_SIZE[0], WINDOW_SIZE[1]))
@@ -48,9 +55,12 @@ class ScoreBoard(Screen):
         text = self.font.render("SCORE : " + "{:04d}".format(self.point), True, (63,255,63))
         self.screen.blit(text, [1010, 10])
         text = self.font.render("TIME : " + str((datetime.now()-st).seconds), True, (63,255,63))
-        self.screen.blit(text, [1010, 100])
+        self.screen.blit(text, [1010, 110])
         text = self.font.render("FPS : " + f"{fps[:5]}", True, (63,255,63))
         self.screen.blit(text, [1150, 850])
+        text = self.font.render("DEFEAT : " + str(self.defeatnumber), True, (63,255,63))
+        self.screen.blit(text, [1010, 210])
+        #スコアボードの表示設定
 #担当 佐野 ここまで
 
 class Image(Screen):
@@ -178,9 +188,9 @@ class Bullet(Image):
         self.rect.center = self.pos
         
     def update(self):
-        self.rect.move_ip(self.speed * math.cos(self.rad+math.radians(90)), self.speed)
-        #print(self.speed * math.cos(self.rad+math.radians(90)))
-        if self.rect.y > 1000:
+
+        self.rect.move_ip(self.speed * math.cos(self.rad+math.radians(90)), self.speed*math.sin(self.rad+math.radians(90)))
+        if self.rect.y > 1000 or self.rect.y < 0 or self.rect.x < 0 or self.rect.x > WINDOW_SIZE[0]:
             self.kill()
 
 #担当 原田慶虎  
@@ -369,7 +379,9 @@ def main():
     scr = BackGroundImage(im_pass="space.jpg" ,title="飛べ、こうかとん")
     
     #スコアボードの設定
-    sb = ScoreBoard()
+    #担当 佐野
+    score = ScoreBoard()
+    st = datetime.now()
     
     #こうかとん の設定
     koukaton = Koukaton(im_pass="fig/0.png", pos=(500, 800), speed=KOUKATON_SPEED)
@@ -406,18 +418,25 @@ def main():
     EnemyEvent = pg.USEREVENT + 1
     #ENEMY_SPAWNING_TIMEごとに行うようにタイマーをセット
     pg.time.set_timer(EnemyEvent, ENEMY_SPAWNING_TIME)
+
+    #担当 佐野
+    score_event = pg.USEREVENT + 4
+    pg.time.set_timer(score_event, 10000)
     
     #爆弾を追加するイベントを作成
     BombEvent = pg.USEREVENT + 4
     #BOMB_SPAWNING_TIMEごとに行うようにタイマーをセット
     pg.time.set_timer(BombEvent, BOMB_SPAWNING_TIME)
     
-    
     while True:
         
 
         #スコアについて加筆:佐野
         score.cal_score(1)
+        
+
+        #スコアについて加筆:佐野
+        score.draw()
         
         #イベント発生時の処理
         for event in pg.event.get():
@@ -444,7 +463,7 @@ def main():
             if event.type == enemy_shot_event:
                 for i in enemy_sprites:
                     rad = random.randint(-ENEMY_BULLET_RADIAN/2, ENEMY_BULLET_RADIAN/2)
-                    tmp = Bullet(im_pass="nc95744.png", pos=i.rect.center, speed=2, rad=math.radians(rad))
+                    tmp = Bullet(im_pass="nc95744.png", pos=i.rect.center, speed=3, rad=math.radians(rad))
                     all_sprites.add(tmp)
                     enemy_bullet_sprites.add(tmp)
                     
@@ -454,6 +473,10 @@ def main():
                 tmp = Enemy(im_pass=["Green.png", "Pink.png", "Purple.png"], speed=[0, 1])
                 all_sprites.add(tmp)
                 enemy_sprites.add(tmp)
+            
+            #担当 佐野
+            if event.type == score_event:
+                score.cal_score(10000)
 
             if event.type == BombEvent:
                 #爆弾の追加
@@ -479,12 +502,16 @@ def main():
         my_bullet_collided = pg.sprite.groupcollide(my_bullet_sprites, enemy_sprites, True, True)
         if my_bullet_collided:
             #スコア計算の処理を追加 担当 佐野
-            score.cal_score(10000)
+            score.cal_score(1000)
+            score.defeat_enemy(1)
 
         # 画像の表示と更新
         scr.blit()
         all_sprites.draw(scr.screen)
         sb.blit()
+
+            
+      
         all_sprites.update()
         score.draw()
         life.blit()
