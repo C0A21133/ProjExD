@@ -18,7 +18,7 @@ escape で終了<br>
 ![デモ](https://user-images.githubusercontent.com/85731429/212822681-20c29d60-bb09-42ab-94b6-b320dd4caa16.gif)
 
 ## 機能
-- <br>
+- 基本機能<br>
 ゲーム開始直後に無敵時間がある <br>
 初期ライフは３ 被弾後に無敵時間がある<br>
 爆弾、敵キャラ、弾に当たるとダメージ<br>
