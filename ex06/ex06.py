@@ -516,7 +516,7 @@ def main():
         score.draw()
         life.blit()
         pg.display.update()
-        clock.tick(60)
+        clock.tick(120)
         
         #FPSの値を更新
         fps = str(clock.get_fps())
