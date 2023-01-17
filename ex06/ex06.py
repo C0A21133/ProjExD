@@ -5,6 +5,8 @@ import pygame as pg
 import random
 import sys
 import time
+import tkinter as tk
+import tkinter.messagebox as tkm
 from datetime import datetime
 
 
@@ -326,12 +328,15 @@ class SoundEffect(Sound):
         self.music.play(0)
 
 #ゲームオーバー時の処理 担当：轟
-def gameover():
+def gameover(score):
+    root=tk.Tk()
+    root.withdraw()
+    ret = tkm.showinfo("result",f"残念！ゲームオーバー！スコアは {score} です。")
     pg.quit()
     sys.exit()
 
 #衝突時の処理
-def collision_object(ko, lf, se):
+def collision_object(ko, lf, se, score):
     """
     爆弾とこうかとんの衝突時の処理
 
@@ -356,7 +361,7 @@ def collision_object(ko, lf, se):
 
     #ライフが0 なら gameover()を実行
     if lf.life == 0:
-        gameover()
+        gameover(score)
             
 
 def main():
@@ -481,16 +486,16 @@ def main():
         #爆弾の衝突 
         bomb_collided = pg.sprite.spritecollide(koukaton, bomb_sprites, True)
         if bomb_collided:
-            collision_object(ko=koukaton, lf=life, se=hit_bomb)
+            collision_object(ko=koukaton, lf=life, se=hit_bomb, score=score.point)
         #敵キャラとの衝突
         enemy_collided = pg.sprite.spritecollide(koukaton, enemy_sprites, True)
         if enemy_collided:
-            collision_object(ko=koukaton, lf=life, se=hit_enemy)
+            collision_object(ko=koukaton, lf=life, se=hit_enemy,score=score.point)
         
         #弾丸が自分に衝突 山下
         enemy_bullet_collided = pg.sprite.spritecollide(koukaton ,enemy_bullet_sprites, True)
         if enemy_bullet_collided:
-            collision_object(ko=koukaton, se=hit_enemy, lf=life)
+            collision_object(ko=koukaton, se=hit_enemy, lf=life,score=score.point)
         
         #弾丸が敵キャラと衝突 担当 山下
         my_bullet_collided = pg.sprite.groupcollide(my_bullet_sprites, enemy_sprites, True, True)
