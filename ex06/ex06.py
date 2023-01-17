@@ -401,21 +401,20 @@ def main():
 
     #担当 山下
     #弾の設定
-    my_shot_event = pg.USEREVENT + 2
+    my_shot_event = pg.USEREVENT + 1
     pg.time.set_timer(my_shot_event, 500)
-    enemy_shot_event = pg.USEREVENT + 3
+    enemy_shot_event = pg.USEREVENT + 2
     pg.time.set_timer(enemy_shot_event, 1000)
     
 
     #スコアについて加筆:佐野
-    score = ScoreBoard()
-    sb = ScoreBoard() 
+    score = ScoreBoard() 
     st = datetime.now()
     fps = "0"
     
     #担当 原田
     #敵を追加するイベントを作成:
-    EnemyEvent = pg.USEREVENT + 1
+    EnemyEvent = pg.USEREVENT + 3
     #ENEMY_SPAWNING_TIMEごとに行うようにタイマーをセット
     pg.time.set_timer(EnemyEvent, ENEMY_SPAWNING_TIME)
 
@@ -424,16 +423,11 @@ def main():
     pg.time.set_timer(score_event, 10000)
     
     #爆弾を追加するイベントを作成
-    BombEvent = pg.USEREVENT + 4
+    BombEvent = pg.USEREVENT + 5
     #BOMB_SPAWNING_TIMEごとに行うようにタイマーをセット
     pg.time.set_timer(BombEvent, BOMB_SPAWNING_TIME)
     
     while True:
-        
-
-        #スコアについて加筆:佐野
-        score.cal_score(1)
-        
 
         #スコアについて加筆:佐野
         score.draw()
@@ -508,10 +502,9 @@ def main():
         # 画像の表示と更新
         scr.blit()
         all_sprites.draw(scr.screen)
-        sb.blit()
 
             
-      
+        score.blit()
         all_sprites.update()
         score.draw()
         life.blit()
