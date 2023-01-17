@@ -56,6 +56,8 @@ class ScoreBoard(Screen):
         self.screen.blit(text, [1010, 10])
         text = self.font.render("TIME : " + str((datetime.now()-st).seconds), True, (63,255,63))
         self.screen.blit(text, [1010, 110])
+        text = self.font.render("FPS : " + f"{fps[:5]}", True, (63,255,63))
+        self.screen.blit(text, [1150, 850])
         text = self.font.render("DEFEAT : " + str(self.defeatnumber), True, (63,255,63))
         self.screen.blit(text, [1010, 210])
         #スコアボードの表示設定
@@ -162,7 +164,7 @@ class Koukaton(Image):
             else:
                 tmp = 0
             if 0 >= self.rect[i] or self.rect[i] + self.rect[i+2]>= WINDOW_SIZE[i] - tmp:
-                print(before_koukaton_rect)
+                #print(before_koukaton_rect)
                 self.rect = before_koukaton_rect
         
     def change_image(self, ip):
@@ -186,6 +188,7 @@ class Bullet(Image):
         self.rect.center = self.pos
         
     def update(self):
+
         self.rect.move_ip(self.speed * math.cos(self.rad+math.radians(90)), self.speed*math.sin(self.rad+math.radians(90)))
         if self.rect.y > 1000 or self.rect.y < 0 or self.rect.x < 0 or self.rect.x > WINDOW_SIZE[0]:
             self.kill()
@@ -357,7 +360,7 @@ def collision_object(ko, lf, se):
             
 
 def main():
-    global crash_time, st
+    global crash_time, st, fps
     os.chdir(os.path.dirname(__file__))
     print("pass:"+os.getcwd())
     pg.init()
@@ -384,7 +387,7 @@ def main():
     koukaton = Koukaton(im_pass="fig/0.png", pos=(500, 800), speed=KOUKATON_SPEED)
     
     #こうかとん のライフ
-    life = Life(im_pass="nc237709.png", pos=(200 ,100))
+    life = Life(im_pass="nc237709.png", pos=(1100 ,300))
     
     all_sprites = pg.sprite.Group() #画像の処理用
     bomb_sprites = pg.sprite.Group() #爆弾衝突判定用
@@ -399,9 +402,16 @@ def main():
     #担当 山下
     #弾の設定
     my_shot_event = pg.USEREVENT + 2
-    pg.time.set_timer(my_shot_event, 300)
+    pg.time.set_timer(my_shot_event, 500)
     enemy_shot_event = pg.USEREVENT + 3
-    pg.time.set_timer(enemy_shot_event, 600)
+    pg.time.set_timer(enemy_shot_event, 1000)
+    
+
+    #スコアについて加筆:佐野
+    score = ScoreBoard()
+    sb = ScoreBoard() 
+    st = datetime.now()
+    fps = "0"
     
     #担当 原田
     #敵を追加するイベントを作成:
@@ -419,11 +429,11 @@ def main():
     pg.time.set_timer(BombEvent, BOMB_SPAWNING_TIME)
     
     while True:
-        #画像の表示と更新
-        scr.blit()
-        all_sprites.draw(scr.screen)
-        life.blit()
-        score.blit()
+        
+
+        #スコアについて加筆:佐野
+        score.cal_score(1)
+        
 
         #スコアについて加筆:佐野
         score.draw()
@@ -494,10 +504,22 @@ def main():
             #スコア計算の処理を追加 担当 佐野
             score.cal_score(1000)
             score.defeat_enemy(1)
-                
+
+        # 画像の表示と更新
+        scr.blit()
+        all_sprites.draw(scr.screen)
+        sb.blit()
+
+            
+      
         all_sprites.update()
+        score.draw()
+        life.blit()
         pg.display.update()
-        clock.tick(1000)
+        clock.tick(60)
+        
+        #FPSの値を更新
+        fps = str(clock.get_fps())
 
 if __name__ == "__main__":
     main()
